@@ -1,0 +1,12 @@
+{
+    "require":{
+        "kumbiaphp/core": "dev-master",
+        "kumbiaphp/activerecord": "dev-master"
+    },
+    "autoload": {
+        "psr-0":{ 
+            "": "app/modules/"
+        }
+    },
+    "minimum-stability": "dev"
+}

@@ -1,0 +1,69 @@
+{
+    "hash": "a89c37c2cdfcd73380c6d27ab2762025",
+    "packages": [
+        {
+            "name": "kumbiaphp/activerecord",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/manuelj555/activerecord",
+                "reference": "f9e772eab0dff0509746f317c0d1642781aea031"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://github.com/manuelj555/activerecord/archive/f9e772eab0dff0509746f317c0d1642781aea031.zip",
+                "reference": "f9e772eab0dff0509746f317c0d1642781aea031",
+                "shasum": ""
+            },
+            "require": {
+                "kumbiaphp/event-dispatcher": "dev-master",
+                "kumbiaphp/dependency-injection": "dev-master"
+            },
+            "time": "2012-11-17 21:34:36",
+            "type": "library",
+            "installation-source": "source",
+            "autoload": {
+                "psr-0": {
+                    "ActiveRecord\\": "lib/"
+                }
+            }
+        },
+        {
+            "name": "kumbiaphp/core",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/manuelj555/Core",
+                "reference": "d21102eb85c21ab82ada26e2668af825d8bcc194"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://github.com/manuelj555/Core/archive/d21102eb85c21ab82ada26e2668af825d8bcc194.zip",
+                "reference": "d21102eb85c21ab82ada26e2668af825d8bcc194",
+                "shasum": ""
+            },
+            "replace": {
+                "kumbiaphp/event-dispatcher": "self.version",
+                "kumbiaphp/dependency-injection": "self.version",
+                "kumbiaphp/validation": "self.version"
+            },
+            "time": "2012-11-20 21:20:16",
+            "type": "library",
+            "installation-source": "source",
+            "autoload": {
+                "psr-0": {
+                    "KumbiaPHP\\": "src/"
+                }
+            }
+        }
+    ],
+    "packages-dev": null,
+    "aliases": [
+
+    ],
+    "minimum-stability": "dev",
+    "stability-flags": {
+        "kumbiaphp/core": 20,
+        "kumbiaphp/activerecord": 20
+    }
+}

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta http-equiv='Content-type' content='text/html; charset=UTF-8' />
+        <title>KumbiaPHP web &amp; App Framework</title>
+        <?php Tag::css('structure') ?>
+        <?php echo Html::includeCss() ?>
+    </head>
+    <body>
+        <header class="container-top"><div class="row"><h1>Cabecera de la Página
+                    <small><?php echo Html::link('', 'Inicio', 'class="pull-right"') ?></small>
+                </h1></div></header>
+        <section class="row">
+            <?php \KumbiaPHP\View\View::content() ?>
+        </section>
+        <footer><div class="row">Pié de la página</div></footer>
+        <?php Tag::js('jquery/jquery.min', -100) ?>
+        <?php echo Html::includeJs() ?>
+    </body>
+</html>
+
+

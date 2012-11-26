@@ -1,0 +1,45 @@
+<?php
+
+use KumbiaPHP\View\View;
+
+$database = View::get('container')->getParameter('config.database');
+$charset = View::get('container')->getParameter('config.charset');
+$status = View::app()->inProduction() ? 'Production' : 'Development';
+
+//    if(isset($config['application']['locale'])){
+//        $locale = $config['application']['locale'];
+//    } else {
+//        $locale = 'No se ha especificado un locale';
+//    }
+//    if(isset($config['application']['timezone'])){
+//        $timezone = $config['application']['timezone'];
+//    } else {
+//        $timezone = 'No se ha especificado un Timezone en el config.ini. Pero el servidor tiene <strong>'.date_default_timezone_get().'</strong>';
+//    }
+//    if(isset($config['application']['cache_driver'])){
+//        $cahe_driver = $config['application']['cache_driver'];
+//    } else {
+//        $cache_driver = 'No ha seleccionado un driver para la cache';
+//    }
+?>
+<?php echo strftime("%d de %B del %Y") . "<br />"; ?>
+<h2>config.ini <span class='app'> de <?php echo basename(dirname(\KumbiaPHP\View\View::app()->getAppPath())) ?></span></h2>
+<!--        <h4>Directorio temp/:</h4>
+        <p><?php //echo $tmp          ?></p>-->
+
+<h4>Estado Actual del Framework: <span><?php echo $status ?></span></h4>
+
+<h4>Base de Datos: <span><?php echo $database ?></span></h4>
+<p>Datos de la conexión a la BD que será utilizada, ver configuración <a href="http://wiki.kumbiaphp.com/KumbiaPHP_Framework_Versi%C3%B3n_1.0_Spirit#databases.ini">databases.ini</a>.</p>
+
+<h4>Charset: <span><?php echo $charset ?></span></h4>
+<p>Codificación de caracteres. Recomendado UTF-8</p>
+
+<!--        <h4>TimeZone: <span><?php //echo $timezone          ?></span></h4>
+        <p>Zona horaria que usará el Framework.</p>
+
+        <h4>Cache Driver: <span><?php //echo $cahe_driver          ?></span></h4>
+        <p>Driver que se utilizara para realizar las operaciones de cache.</p>
+
+        <h4>Locale: <span><?php //echo $locale          ?></span></h4>
+        <p>Localización. Característica que depende de los locale instalado en el servidor.</p>-->

@@ -1,0 +1,29 @@
+<?php echo Html::img('default/kumbia.png', 'KumbiaPHP logo') ?>
+<?php \KumbiaPHP\View\View::content(true) ?>
+<h1>KumbiaPHP está listo para usarse</h1>
+<p><strong>Bienvenido a KumbiaPHP Framework</strong>. El framework ya está listo para desarrollar aplicaciones web con PHP, rápida y fácilmente, sin tener que reinventar la rueda, y preocupandose por lo más importante, la lógica de su aplicación.</p>
+<div class="row">    
+    <div class="span6">
+        <h2>Como empezar</h2>
+        <p>Puedes ver la <a href="https://github.com/manuelj555/k2/tree/master/doc#indice-de-contenidos">Documentación en linea</a> donde está la sección <a href="https://github.com/manuelj555/k2/tree/master/doc#preguntas-frecuentes">Preguntas Frecuentes</a> y encontrarás información actualizada sobre el uso del framework, tambien puede interesarte saber sobre:</p>
+        <ul>
+            <li><a href="https://github.com/manuelj555/k2/blob/master/doc/ejemplos/scaffold.rst">¿Cómo crear un Scaffold?</a></li>
+            <li><a href="https://github.com/manuelj555/k2/blob/master/doc/ejemplos/creando_un_modelo.rst">¿Cómo Crear un Modelo?</a></li>
+            <li><a href="https://github.com/manuelj555/k2/blob/master/doc/servicios.rst#definiendo-un-servicio">¿Cómo crear un Servicio?</a></li>
+            <li><a href="https://github.com/manuelj555/k2/blob/master/doc/los_modulos.rst">¿Cómo crear un Módulo en mi Aplicación?</a></li>
+            <li><a href="https://github.com/manuelj555/k2/blob/master/doc/los_modulos.rst#instalando-modulos-de-terceros">¿Cómo Instalar un Módulo de Terceros?</a></li>
+        </ul>
+    </div>
+    <div class="span5 pull-right">
+        <h2>Ejemplos</h2>
+        <p>Estos Son Algunos ejemplos que vienen con el framewrok:</p>
+        <ul>
+            <li><?php echo Html::link('demo/modelos','Los Modelos') ?></li>
+            <li><?php echo Html::link('demo/upload','Subiendo Archivos') ?></li>
+            <li><?php echo Html::link('demo/router','Uso del Router') ?></li>
+            <li><?php echo Html::link('demo/vistas','Trabajando con Vistas') ?></li>
+            <li><?php echo Html::link('demo/rest','Controlador REST') ?></li>
+            <li><?php echo Html::link('admin','Autenticación') ?></li>
+        </ul>
+    </div>
+</div>

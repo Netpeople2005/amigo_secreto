@@ -1,0 +1,10 @@
+<h3>Otra Acción</h3>
+<p>Hola <?php echo $tuNombre ?>...!!!</p>
+<p>La palabra <b><?php echo $tuNombre ?></b> viene de la Url por si no lo has notado, prueba a cambiarla</p>
+<ul>
+    <li><?php echo Html::linkAction('', 'Ejemplo 1') ?></li>
+    <li><?php echo Html::linkAction('saludo/Amigo', 'Ejemplo 2') ?></li>
+</ul>
+<hr/>
+<h2>Código de la Vista</h2>
+<?php highlight_file(__FILE__); ?>

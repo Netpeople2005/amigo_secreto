@@ -1,0 +1,11 @@
+<?php Tag::css('scaffold') ?>
+<div id="scaffold">
+    <h1><?php echo ucwords(basename(get_class($model)))//, ": <span>$action_name</span>"  ?></h1>
+    <?php \KumbiaPHP\View\View::content(true) ?>
+
+    <?php echo $form ?>
+
+    <div class="actions">
+        <a href="../">Listado</a>
+    </div>
+</div>

@@ -1,0 +1,16 @@
+<?php Tag::css('scaffold') ?>
+<div id="scaffold">
+    <h1><?php echo ucwords(basename(get_class($model)))//,": <span>$action_name</span>"   ?></h1>
+    <ul style="margin-left: 30px;">
+        <?php foreach (get_object_vars($model) as $fieldName => $value) : ?>
+            <li><strong><?php echo $model->metadata()->attribute($fieldName)->alias ?> :</strong>  <?php eh($value) ?></li>
+        <?php endforeach ?>
+    </ul>
+
+    <div class="actions">
+        <a href="../">Listado</a>
+        <a href="../crear/">Crear registro</a>
+        <a href="../editar/<?php echo $model->id ?>">Editar</a>
+        <a class="del" title="¿Seguro que quiere borrar?" href="../borrar/<?php echo $model->id ?>" onclick="return confirm('¿Está seguro?');">Borrar</a>
+    </div>
+</div>

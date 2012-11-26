@@ -1,0 +1,45 @@
+<?php
+
+use KumbiaPHP\View\View;
+
+Tag::css('scaffold');
+?>
+<div id="scaffold">
+    <h1><?php echo ucwords(basename(get_class($model)))//,": <span>$action_name</span>"   ?></h1>
+    <?php View::content(true) ?>
+    <?php if ($paginator->items) : ?>
+        <table>
+            <thead><tr>
+                    <?php foreach ($model->metadata()->getAttributes() as $attr) : ?>
+                        <th><?php echo $attr->alias ?></th>
+                    <?php endforeach; ?>
+                    <th>Acciones</th>
+                </tr></thead>
+            <tbody>
+                <?php foreach ($paginator->items as $item) : ?>
+                    <tr>
+                        <?php foreach (get_object_vars($item) as $field) : ?>
+                            <td><?php eh($field) ?></td>
+                        <?php endforeach ?>
+                        <td><?php echo Html::linkAction("ver/$item->id", 'Ver') ?> |
+                            <?php echo Html::linkAction("editar/$item->id", 'Editar') ?> |
+                            <?php echo Html::linkAction("borrar/$item->id", 'Borrar', 'onclick="return confirm(\'¿Está seguro?\')"') ?>
+                        </td>
+                    </tr>
+                <?php endforeach ?>
+            </tbody>
+        </table>
+        <?php
+        View::partial('paginators/digg', false, array(
+            'page' => $paginator,
+            'url' => View::app()->getControllerUrl() . '/index'));
+        ?>
+
+    <?php else : // Si no hay items ?>
+        <h2>No hay ningún registro</h2>
+<?php endif ?>
+
+</div>
+<div class="actions">
+<?php echo Html::linkAction("crear/", 'Crear registro') ?>
+</div>

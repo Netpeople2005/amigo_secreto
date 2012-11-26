@@ -1,0 +1,25 @@
+<footer>
+    <div class="row">
+        <div class="span6">                     
+            <span><a href='http://www.kumbiaphp.com/'>KumbiaPHP Framework</a> |</span>
+            <span><a href='http://wiki.kumbiaphp.com/'>Wiki</a> |</span>
+            <span><a href='https://docs.google.com/document/d/1kth1GhrmMEBK2cAMyiy_4Dw1qlJFNdXVuXajJ6nMTQg/edit?hl=es'>Manual</a> |</span>
+            <span><a href='http://wiki.kumbiaphp.com/Licencia' title='New BSD'>Licencia</a></span>
+            </ul>
+        </div>
+        <div class=' span6 pull-right' style="text-align: right">
+            Ayuda Online: <a href='irc://irc.freenode.org/#kumbiaphp' title="IRC donde podrás encontrar ayuda a problemas que tengas, hacer comentarios, proponer ideas, reportar bugs, socializar temas relacionados y disfrutar de KumbiaPHP.">IRC</a> | 
+            <a href='http://webchat.freenode.net/?channels=kumbiaphp' title="Web Chat IRC donde podrás encontrar ayuda a problemas que tengas, hacer comentarios, proponer ideas, reportar bugs, socializar temas relacionados y disfrutar de KumbiaPHP.">Web IRC</a> | 
+            <a href='http://groups.google.com/group/kumbia' title="Lista de Correo de KumbiaPHP donde podrás encontrar ayuda a problemas que tengas, hacer comentarios, proponer ideas, reportar bugs, socializar temas relacionados y disfrutar de KumbiaPHP.">Grupo</a> | <a href='http://foro.kumbiaphp.com' title="Foro de KumbiaPHP donde podrás encontrar ayuda a problemas que tengas, hacer comentarios, proponer ideas, reportar bugs, socializar temas relacionados y disfrutar de KumbiaPHP.">Foro</a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="span6">
+            <a href='http://wiki.kumbiaphp.com/Team_Development_KumbiaPHP_Framework'>© 2007 - <?php echo date('Y'); ?> KumbiaPHP Team</a>
+        </div>
+        <div class='span6 pull-right' style="text-align: right">
+            <?php echo 'Tiempo: ' . round((microtime(1) - START_TIME), 4) . ' seg.'; ?>
+            <?php echo ', Memoria Usada: ' . number_format(memory_get_usage() / 1048576, 2) . ' MB'; ?>
+        </div>
+    </div>
+</footer>

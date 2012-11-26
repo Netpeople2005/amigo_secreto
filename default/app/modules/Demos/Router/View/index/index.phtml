@@ -1,0 +1,10 @@
+<h2>Hola desde la Acción: <?php echo $accionEjecutada ?></h2>
+<?php \KumbiaPHP\View\View::content(true) ?>
+<ul>
+    <li><?php echo Html::linkAction('index', 'ir a la acción index()') ?></li>
+    <li><?php echo Html::linkAction('to_action', 'ir a la acción toAction()') ?></li>
+    <li><?php echo Html::linkAction('forward', 'ir a la acción forward()') ?></li>
+</ul>
+<hr/>
+<h2>Código de la Vista</h2>
+<?php highlight_file(__FILE__); ?>

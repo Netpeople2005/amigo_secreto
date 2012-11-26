@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta http-equiv='Content-type' content='text/html; charset=<?php APP_CHARSET ?>' />
+        <title>KumbiaPHP web &amp; App Framework</title>
+        <?php Tag::css('structure'); ?>
+        <?php echo Html::includeCss() ?>
+    </head>
+    <body>
+        <header class="container-top">
+            <div class="row">
+                <h1><?php echo Html::link('', 'KumbiaPHP') ?>
+                    <small>web & app Framework versión K2
+                        <?php echo Html::link('pages/show/kumbia/status', 'Config', 'class="pull-right"') ?>
+                    </small>
+                </h1>             
+            </div>
+        </header>
+        <div class="row">
+            <?php KumbiaPHP\View\View::content(true) ?>            
+        </div>
+        <?php KumbiaPHP\View\View::partial('footer') ?>
+        <?php Tag::js('jquery/jquery.min', -100) ?>
+        <?php echo Html::includeJs() ?>
+    </body>
+</html>
+

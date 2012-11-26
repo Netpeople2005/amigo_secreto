@@ -1,0 +1,15 @@
+<?php
+
+use KumbiaPHP\View\View;
+
+/*
+ * Partial que genera los mensajes flash en formato html
+ */
+?>
+<div class="messages-flash">
+    <?php foreach ((array) View::flash()->getAll() as $type => $messages): ?>
+        <?php foreach ((array) $messages as $message): ?>
+            <div class="flash <?php echo $type ?>"><?php echo $message ?></div>
+        <?php endforeach; ?>
+<?php endforeach; ?>
+</div>

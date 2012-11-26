@@ -1,0 +1,14 @@
+<?php Tag::css('scaffold') ?>
+<h3>Ejemplo de subida de Imagenes</h3>
+<p>
+    <?php \KumbiaPHP\View\View::content(true) ?>    
+</p>
+<?php echo Form::openMultipart() ?>
+<ul>
+    <li><label>Imagen: <?php echo Form::file('imagen') ?></label></li>
+    <li><input type="submit" value="Enviar Form" class="btn" /></li>
+</ul>
+<?php echo Form::close() ?>
+<hr/>
+<h2>Código de la Vista</h2>
+<?php highlight_file(__FILE__); ?>
