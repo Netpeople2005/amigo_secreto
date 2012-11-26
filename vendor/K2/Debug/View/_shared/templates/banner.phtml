@@ -1,0 +1,134 @@
+<?php
+if (isset($queries['numQueries'])) {
+    $numQueries = $queries['numQueries'];
+    unset($queries['numQueries']);
+} else {
+    $numQueries = 0;
+}
+
+use KumbiaPHP\View\View;
+?>
+<div id="k2_debug_container">
+    <ul class="k2_debug_tabs">
+        <li id="k2_debug_queries" style="width: 130px">
+            <h5>Consultas SQL: <?php echo $numQueries ?></h5>
+            <?php if (is_array($queries) && count($queries)): ?>
+                <div class="k2_debug_info">                
+                    <?php foreach ($queries as $url => $collection): ?>
+                        <?php if (count($collection->all())): ?>
+                            <ul class="k2_debug_queries_list">
+                                <li><h4> Petición: <?php eh($url) ?></h4></li>
+                                <?php foreach ($collection->all() as $query): ?>
+                                    <li class="k2_debug_query_<?php echo strtolower($query['type']) ?>">
+                                        <code><?php eh($query['query']) ?></code>
+                                        <br/>Parametros: (
+                                        <?php foreach ((array) $query['parameters'] as $index => $value): ?>
+                                            <b> <?php eh($index) ?></b> => <?php eh($value) ?>,
+                                        <?php endforeach; ?> );
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </li>
+        <li style="width: 140px">
+            <h5>Archivos Incluidos: <?php echo count(get_included_files()) ?></h5>
+            <div class="k2_debug_info">
+                <ul>                    
+                    <?php foreach ((array) get_included_files() as $file): ?>
+                        <li><?php eh($file) ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        </li>
+        <li>
+            <h5>Petición: <?php echo View::app()->getRequestUrl() ?></h5>
+            <div class="k2_debug_info">
+                <ul>
+                    <li><b>URL:</b> <?php echo View::app()->getRequestUrl() ?></li>
+                    <li><b>Módulo:</b> <?php eh(View::app()->getCurrentModuleUrl()) ?> => <?php eh(View::app()->getCurrentModule()) ?></li>
+                    <li><b>Controlador:</b> <?php eh(View::app()->getCurrentController()) ?></li>
+                    <li><b>Acción:</b> <?php eh(View::app()->getCurrentAction()) ?></li>
+                    <li><b>Parametros:</b> <?php echo print_r(View::app()->getCurrentParameters(), true) ?></li>
+                </ul>
+            </div>
+        </li>
+        <li style="width: 160px">
+            <h5>Respuesta: Status = <?php eh($status) ?></h5>
+            <div class="k2_debug_info">
+                <ul>
+                    <li><b>Charset:</b> <?php eh($charset) ?></li>
+                    <li><b>Estado:</b> <?php eh($status) ?></li>
+                    <?php foreach ($headers as $i => $h): ?>
+                        <?php if (is_numeric($i)): ?>
+                            <li><b><?php eh($h) ?></b></li>
+                        <?php else: ?>
+                            <li><b><?php eh($i) ?>:</b> <?php eh($h) ?></li>
+                        <?php endif ?>
+                    <?php endforeach ?>
+                </ul>
+            </div>
+        </li>
+        <li style="width: 140px">
+            <h5>Variables Volcadas: <?php echo count($dumps) ?></h5>
+            <?php if (count($dumps)): ?>            
+                <div class="k2_debug_info">
+                    <ul>                    
+                        <?php foreach ((array) $dumps as $title => $var): ?>
+                            <li><b><?php eh($title) ?></b><pre><?php var_dump($var) ?></pre></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            <?php endif ?>
+        </li>
+        <li style="width: 150px">
+            <h5>Usuario: <?php echo View::get('security')->isLogged() ? View::get('security')->getToken()->getUsername() : 'No hay sesión.' ?></h5>
+            <?php if (View::get('security')->isLogged()): ?>
+                <?php $token = View::get('security')->getToken() ?>
+                <div class="k2_debug_info">
+                    <ul>
+                        <li><b>Clase de Usuario</b>: <?php eh(get_class($token->getUser())) ?></li>
+                        <li><b>Nombre de Usuario</b>: <?php eh($token->getUsername()) ?></li>
+                        <li><b>Roles</b>:
+                            <ul>
+                                <?php foreach ((array) $token->getRoles() as $rol): ?>
+                                    <li><?php eh($rol instanceof KumbiaPHP\Security\Acl\Role\RoleInterface ? $rol->getName() : $rol) ?></li>
+                                <?php endforeach ?>
+                            </ul>
+                        </li>
+                        <li><b>Atributos Adicionales</b>:
+                            <ul>
+                                <?php $data = array_merge((array) $token->getAttributes(), (array) get_object_vars($token->getUser())); ?>
+                                <?php foreach ($data as $index => $attr): ?>
+                                    <li><b><?php eh($index) ?></b>: <?php eh($attr) ?></li>
+                                <?php endforeach ?>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            <?php endif ?>
+        </li>
+        <li style="width: 140px">
+            <h5>                
+                <?php echo round((microtime(1) - START_TIME), 4) . ' seg. / ' . number_format(memory_get_usage() / 1048576, 2) . ' MB'; ?>
+            </h5>
+        </li>
+    </ul>
+</div>
+<style>
+    #k2_debug_container{position: fixed;height: 50px;width: 100%;background-color: #F5F5F5;bottom: 0px;left: 0px;box-shadow: 0 0px 5px #000}
+    .k2_debug_tabs{margin: 0px 10px;padding: 0;white-space: nowrap}
+    .k2_debug_tabs li{padding: 5px;vertical-align: top;display: inline-block;border-right: 1px solid #c1c0c0;width: 15%;position: relative;white-space: normal;min-height: 45px}
+    .k2_debug_tabs li h5{margin: 0px;padding: 0px;font-size: 12px;overflow: hidden;white-space: nowrap}
+    #k2_debug_container .k2_debug_info ul{width: 100%;}
+    #k2_debug_container .k2_debug_info li{border-bottom: 1px solid #c1c0c0;padding: 10px;width: 100%;min-height: 20px}
+    .k2_debug_tabs > li:hover .k2_debug_info{display: block;}
+    .k2_debug_info{display: none;position: fixed;width: 100%;left: 0px;background-color: #e6e4e4;box-shadow: 0 0px 5px #000;bottom: 49px;max-height: 400px;overflow: auto;}
+    .k2_debug_queries_list{margin: 0;padding: 0}
+    .k2_debug_query_select{background-color: #f0f7ff}
+    .k2_debug_query_insert{background-color: #f0fff0}
+    .k2_debug_query_update{background-color: #f6ebfc}
+    .k2_debug_query_delete{background-color: #feefef}
+</style>

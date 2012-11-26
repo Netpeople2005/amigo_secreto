@@ -139,7 +139,11 @@ class Firewall
         return array($provider, $provider->getToken((array) Reader::get('model_config.user')));
     }
 
-    protected function loginCheck()
+    /**
+     *
+     * @return type 
+     */
+    public function loginCheck()
     {
         try {
             list ($provider, $token) = $this->getProviderAndToken(Reader::get('security.provider'));

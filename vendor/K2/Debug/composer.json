@@ -1,0 +1,10 @@
+{
+    "name": "k2/debug",
+    "type": "library",
+    "autoload": {
+        "psr-0":{ 
+            "K2\\Debug\\": ""
+        }
+    },
+    "target-dir": "K2/Debug"
+}
