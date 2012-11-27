@@ -28,7 +28,7 @@ class AclManager
     {
         self::$acl = Acl::factory();
 
-        $roles = $token->getRoles();
+        $roles = array_merge(array('default'), (array) $token->getRoles());
 
         foreach ($roles as $role) {
             if ($role instanceof RoleInterface) {

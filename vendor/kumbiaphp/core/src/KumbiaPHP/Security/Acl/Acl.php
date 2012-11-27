@@ -31,14 +31,14 @@ abstract class Acl implements AclInterface
 
     public function check(UserInterface $user, $resource)
     {
-        $roles = $user->getRoles();
-
+        $roles = array_merge(array('default'), (array) $user->getRoles());
+        
         foreach ((array) $roles as $role) {
             if ($this->isAllowed($role, $resource)) {
-                return TRUE;
+                return true;
             }
         }
-        return FALSE;
+        return false;
     }
 
     protected function isAllowed($role, $resource)
@@ -47,35 +47,35 @@ abstract class Acl implements AclInterface
         $resource = '/' . trim($this->getResource($resource), '/');
 
         if (!isset($this->roles[$role])) {
-            return FALSE;
+            return false;
         }
 
         if (in_array($resource, $this->roles[$role]['resources'])) {
-            return TRUE;
+            return true;
         }
 
         foreach ((array) $this->roles[$role]['resources'] as $res) {
-            
+
             if (false !== strripos($res, '*', -1)) {
                 $res = rtrim($res, '/*');
                 if (0 === strpos($resource, $res)) {
-                    return TRUE;
+                    return true;
                 }
             } elseif ($res === $resource) {
-                return TRUE;
+                return true;
             }
         }
 
         if (!isset($this->roles[$role]['parents'])) {
-            return FALSE;
+            return false;
         }
 
         foreach ((array) $this->roles[$role]['parents'] as $parent) {
             if ($this->isAllowed($parent, $resource)) {
-                return TRUE;
+                return true;
             }
         }
-        return FALSE;
+        return false;
     }
 
     protected function getRole($role)
