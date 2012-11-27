@@ -216,7 +216,6 @@ class Request
     
     public function __construct($baseUrl = NULL)
     {
-        $this->baseUrl = $baseUrl;
         $this->server = new Collection($_SERVER);
         $this->request = new Collection($_POST);
         $this->query = new Collection($_GET);
@@ -235,6 +234,12 @@ class Request
             //si los datos de la petición se envian en formato JSON
             //los convertimos en una arreglo.
             $this->request = new Collection((array) json_decode($this->getContent(), TRUE));
+        }
+
+        if ($baseUrl) {
+            $this->baseUrl = $baseUrl;
+        } else {
+            $this->baseUrl = $this->createBaseUrl();
         }
     }
 
@@ -285,9 +290,6 @@ class Request
     
     public function getBaseUrl()
     {
-        if (!$this->baseUrl) {
-            $this->baseUrl = $this->createBaseUrl();
-        }
         return $this->baseUrl;
     }
 
@@ -331,7 +333,7 @@ class Request
             if (false !== $pos = strpos($uri, '?')) {
                 $uri = substr($uri, 0, $pos);
             }
-            return str_replace($this->query->get('_url'), '/', urldecode($uri));
+            return str_replace($this->getRequestUrl(), '/', urldecode($uri));
         } else {
             return $uri;
         }
@@ -582,7 +584,7 @@ class AppContext
     }
 
     
-    protected function parseUrl()
+    public function parseUrl()
     {
         $controller = 'index'; //controlador por defecto si no se especifica.
         $action = 'index'; //accion por defecto si no se especifica.
@@ -686,7 +688,7 @@ class ConfigReader
     {
         $configFile = $app->getAppPath() . '/config/config.php';
         if ($app->inProduction()) {
-            if (file_exists($configFile)) {
+            if (is_file($configFile)) {
                 $this->config = require_once $configFile;
                 return;
             } else {
@@ -715,7 +717,7 @@ class ConfigReader
         foreach ($dirs as $namespace => $dir) {
             $configFile = rtrim($dir, '/') . '/' . $namespace . '/config/config.ini';
             $servicesFile = rtrim($dir, '/') . '/' . $namespace . '/config/services.ini';
-            
+
             if (is_file($configFile)) {
                 foreach (parse_ini_file($configFile, TRUE) as $sectionType => $values) {
 
@@ -737,7 +739,7 @@ class ConfigReader
 
         unset($section['config']); //esta seccion esta disponible en parameters con el prefio config.*
 
-        return $section;
+        return $this->prepareAditionalConfig($section);
     }
 
     public function getConfig()
@@ -763,6 +765,48 @@ class ConfigReader
             }
         }
         return $section;
+    }
+
+    
+    protected function prepareAditionalConfig($configs)
+    {
+        //si se usa el routes lo añadimos al container
+        if (isset($configs['parameters']['config.routes'])) {
+            $router = substr($configs['parameters']['config.routes'], 1);
+
+            //si es el router por defecto quien reescribirá las url
+            if ('router' === $router) {
+                //solo le añadimos un listener.
+                $configs['services']['router']
+                        ['listen']['rewrite'] = 'kumbia.request';
+            } else {
+                //si es un servicio distinto al router. y existe,
+                //lo añadimos al principio de todos los servicios.
+                $def = $configs['services'][$router]; //guardamos la definición del servicio en una variable temporal.
+                unset($configs['services'][$router]); //eliminamos la definición del arreglo $config
+                //volteamos el arreglo de servicios, para insertar de nuevo la definición.
+                $configs['services'] = array_reverse($configs['services'], true);
+                //insertamos la definición, quedando esta al final del array.
+                $configs['services'][$router] = $def;
+                //volvemos a voltear los servicios, con lo que la definición insertada
+                //queda de primera.
+                $configs['services'] = array_reverse($configs['services'], true);
+                //esto es importante debido a que queremos que el primer escucha que siempre
+                //se ejecute sea el que hace las reescrituras de url, para que cuando se
+                //llamen a los siguientes escuchas ya la url esté reescrita.
+            }
+        }
+
+        //si se estan usando locales y ningun módulo a establecido una definición para
+        //el servicio translator, lo hacemos por acá.
+        if (isset($configs['parameters']['config.locales'])
+                && !isset($configs['services']['translator'])) {
+            $configs['services']['translator'] = array(
+                'class' => 'KumbiaPHP\\Translation\\Translator',
+            );
+        }
+
+        return $configs;
     }
 
 }
@@ -1354,7 +1398,7 @@ class ControllerResolver
 
             $controllerFile = "{$app->getModules($this->module)}{$controllerClass}.php";
 
-            if (!file_exists($controllerFile)) {
+            if (!is_file($controllerFile)) {
                 throw new NotFoundException();
             }
 
@@ -1544,7 +1588,10 @@ class Controller
     protected $template = 'default';
 
     
-    protected $cache = NULL;
+    protected $response;
+
+    
+    protected $cache = null;
 
     
     protected $limitParams = TRUE;
@@ -1582,10 +1629,19 @@ class Controller
     }
 
     
-    protected function setView($view, $template = FALSE)
+    protected function setView($view, $template = false)
     {
         $this->view = $view;
-        if ($template !== FALSE) {
+        if ($template !== false) {
+            $this->setTemplate($template);
+        }
+    }
+
+    
+    protected function setResponse($response, $template = false)
+    {
+        $this->response = $response;
+        if ($template !== false) {
             $this->setTemplate($template);
         }
     }
@@ -1603,13 +1659,19 @@ class Controller
     }
 
     
+    protected function getResponse()
+    {
+        return $this->response;
+    }
+
+    
     protected function getTemplate()
     {
         return $this->template;
     }
 
     
-    protected function cache($time = FALSE)
+    protected function cache($time = false)
     {
         $this->cache = $time;
     }
@@ -1620,9 +1682,15 @@ class Controller
     }
 
     
-    protected function render(array $params = array(), $time = NULL)
+    protected function render(array $params = array(), $time = null)
     {
-        return $this->get('view')->render($this->getTemplate(), $this->getView(), $params, $time);
+        return $this->get('view')->render(array(
+                    'template' => $this->getTemplate(),
+                    'view' => $this->getView(),
+                    'response' => $this->getResponse(),
+                    'params' => $params,
+                    'time' => $time,
+                ));
     }
 
 }
@@ -2013,7 +2081,6 @@ abstract class Kernel implements KernelInterface
         if (!self::$container) { //si no se ha creado el container lo creamos.
             $this->init($request);
             self::$container->get('app.context')->setRequestType($type);
-            $this->production || $this->validateModules();
         }
         //agregamos el request al container
         self::$container->setInstance('request', $this->request);
@@ -2050,13 +2117,15 @@ abstract class Kernel implements KernelInterface
         //como la acción no devolvió respuesta, debemos
         //obtener la vista y el template establecidos en el controlador
         //para pasarlos al servicio view, y este construya la respuesta
-        $view = $resolver->callMethod('getView');
-        $template = $resolver->callMethod('getTemplate');
-        $cache = $resolver->callMethod('getCache');
-        $properties = $resolver->getPublicProperties(); //nos devuelve las propiedades publicas del controlador
         //llamamos al render del servicio "view" y esté nos devolverá
         //una instancia de response con la respuesta creada
-        return self::$container->get('view')->render($template, $view, $properties, $cache);
+        return self::$container->get('view')->render(array(
+                    'template' => $resolver->callMethod('getTemplate'),
+                    'view' => $resolver->callMethod('getView'),
+                    'response' => $resolver->callMethod('getResponse'),
+                    'time' => $resolver->callMethod('getCache'),
+                    'params' => $resolver->getPublicProperties(), //nos devuelve las propiedades publicas del controlador
+                ));
     }
 
     private function exception(\Exception $e)
@@ -2129,13 +2198,6 @@ abstract class Kernel implements KernelInterface
         $this->di = new DependencyInjection();
 
         self::$container = new Container($this->di, $definitions);
-
-        //si se estan usando locales y ningun módulo a establecido una definición para
-        //el servicio translator, lo hacemos por acá.
-        if (isset($definitions['parameters']['config.locales'])
-                && !self::$container->has('translator')) {
-            self::$container->set('translator', 'KumbiaPHP\\Translation\\Translator');
-        }
     }
 
     
@@ -2151,15 +2213,6 @@ abstract class Kernel implements KernelInterface
         }
 
         self::$container->setInstance('dispatcher', $this->dispatcher);
-    }
-
-    private function validateModules()
-    {
-        foreach ($this->modules as $module => $path) {
-            if (false === is_dir($route = rtrim($path, '/') . "/{$module}")) {
-                throw new \InvalidArgumentException("No existe la ruta \"$route\" para el módulo \"$module\"");
-            }
-        }
     }
 
 }
