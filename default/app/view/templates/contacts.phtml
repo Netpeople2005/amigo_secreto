@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>Home</title>
+<title>Contacts</title>
 <meta charset="utf-8">
 <link rel="stylesheet" href="css/reset.css" type="text/css" media="all">
 <link rel="stylesheet" href="css/layout.css" type="text/css" media="all">
@@ -16,9 +16,8 @@
 <script type="text/javascript" src="js/html5.js"></script>
 <![endif]-->
 </head>
-<body id="page1">
+<body id="page4">
 <div class="main">
-    
 <!-- header -->
 	<header>
 		<div class="wrapper">
@@ -29,12 +28,12 @@
 				</div>
 			</form>
 			<ul id="icons">
-                            <li><a href="#"><?php echo Html::img('icon1.gif')?></a></li>
-                            <li><a href="#"><?php echo Html::img('icon2.gif')?></a></li>
-                            <li><a href="#"><?php echo Html::img('icon3.gif')?></a></li>
-                            <li><a href="#"><?php echo Html::img('icon4.gif')?></a></li>
-                            <li><a href="#"><?php echo Html::img('icon5.gif')?></a></li>
-                            <li><a href="#"><?php echo Html::img('icon6.gif')?></a></li>
+				<li><a href="#"><img src="images/icon1.gif" alt=""></a></li>
+				<li><a href="#"><img src="images/icon2.gif" alt=""></a></li>
+				<li><a href="#"><img src="images/icon3.gif" alt=""></a></li>
+				<li><a href="#"><img src="images/icon4.gif" alt=""></a></li>
+				<li><a href="#"><img src="images/icon5.gif" alt=""></a></li>
+				<li><a href="#"><img src="images/icon6.gif" alt=""></a></li>
 			</ul>
 		</div>
 		<div class="wrapper">
@@ -65,34 +64,18 @@
 	<section id="content">
 		<article class="col1">
 			<div class="box1 min_height">
-				<h3><span><span><strong>&nbsp;</strong>Merry Christmas and Happy New Year!</span></span></h3>
-				<div class="wrapper">
-                                    <figure class="left marg_right1"><?php echo Html::img('page1_img1.jpg')?></figure>
-					<p class="pad_bot1"><strong>Et harum quidem rerum facilis est et expedita distinctio</strong></p>
-					<p>Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit minus id quod maxime placeat facere possimus, omnis <a href="#">voluptas assumenda</a> est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerumsaepe eveniet ut et voluptates repudiandae sint et molestiae recusandae. </p>
-				</div>
-				<div class="wrapper line1 marg_bot1">
-					<ul class="list1 cols">
-						<li><a href="#">Sed ut perspiciatis unde omnis iste natus error</a></li>
-						<li><a href="#">Voluptatem accusantium doloremque</a></li>
-						<li><a href="#">Laudantium, totam rem aperiam, eaque ipsaiuae</a></li>
-						<li><a href="#">Abillo inventore veritatis etquasrchto beatae</a></li>
-					</ul>
-					<ul class="list1 cols pad_left2">
-						<li><a href="#">Vitae dicta sunt explicabo. Nemo enim</a></li>
-						<li><a href="#">Ipsam voluptatem quia voluptas sit aspernatur</a></li>
-						<li><a href="#">Aut odit aut fugi quia consequuntur magni dolore</a></li>
-						<li><a href="#">Eos qui ratione voluptatem sequi nesciunt</a></li>
-					</ul>
-				</div>
-				<h3><span><span><strong>&nbsp;</strong>New Ideas for Celebration</span></span></h3>
-				<p class="pad_bot1">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae:</p>
-				<ul class="list2 pad_bot2">
-					<li><a href="#">Vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur </a></li>
-					<li><a href="#">Aut odit aut fugit, sed quia consequuntur magni dolores eos qui </a></li>
-					<li><a href="#">Ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem </a></li>
-					<li><a href="#">Ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora</a></li>
-				</ul>
+				<h3><span><span><strong>&nbsp;</strong>Contact Form</span></span></h3>
+				<form id="ContactForm" action="">
+					<div>
+						<div class="wrapper"><input type="text" class="input" /><strong>Name:</strong><br /></div>
+						<div class="wrapper"><input type="text" class="input" /><strong>Email:</strong><br /></div>
+						<div class="wrapper"><textarea name="textarea" cols="1" rows="1"></textarea><strong>Message:</strong><br /></div>
+						<div class="centrer">
+							<a href="#" class="button" onClick="document.getElementById('ContactForm').reset()"><span><span>clear</span></span></a>
+							<a href="#" class="button" onClick="document.getElementById('ContactForm').submit()"><span><span>send</span></span></a>
+						</div>
+					</div>
+				</form>
 			</div>
  </article>
 		<article class="col2 pad_left1">
@@ -100,10 +83,10 @@
 				<h2><span><span><strong>&nbsp;</strong>Latest News</span></span></h2>
 				<p><strong class="color1">08.12.2010</strong><br>Vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum.<a href="#" class="marker">&nbsp;</a></p>
 				<p><strong class="color1">03.12.2010</strong><br>Deleniti atque corrupti quos dolores quas molestias excepturi sint oaecati cupiditate provident.<a href="#" class="marker">&nbsp;</a></p>
-				<p><strong class="color1">29.11.2010</strong><br>Similique sunt in culpa qui officia deserunt mollitia animi, iest laborum et dolorum dignissimos fuga.<a href="#" class="marker">&nbsp;</a> </p>
+				<p><strong class="color1">29.11.2010</strong><br>Similique sunt in culpa qui officia deserunt mollitia animi, iest laborum et dolorum dignissimos fuga.<a href="#" class="marker">&nbsp;</a></p>
 				<div class="centrer pad_bot2"><a href="#" class="button"><span><span>News Archive</span></span></a></div>
 			</div>
-                    <a href="#" id="banner1"><?php echo Html::img('banner1.jpg') ?></a>
+			<a href="#" id="banner1"><img src="images/banner1.jpg" alt=""></a>
  </article>
 	</section>
 <!-- / content -->
