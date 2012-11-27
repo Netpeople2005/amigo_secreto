@@ -11,10 +11,15 @@ class indexController extends Controller
 
     public function index_action()
     {
-    }    
+        
+    }
 
     public function inicio_action()
     {
-    }    
+        if ( null === $this->get('security')->getToken('clave') ){
+            $this->get('flash')->warning("Debes Crear Tu Contraseña...!!!");
+            return $this->getRouter()->forward('registro/cambiar_clave');
+        }
+    }
 
 }

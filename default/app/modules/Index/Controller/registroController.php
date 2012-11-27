@@ -2,6 +2,7 @@
 
 namespace Index\Controller;
 
+use KumbiaPHP\Form\Form;
 use Index\Model\Usuarios;
 use Index\Model\EquiposRegistrados;
 use KumbiaPHP\Kernel\Controller\Controller;
@@ -11,7 +12,6 @@ class registroController extends Controller
 
     public function index_action()
     {
-        $this->get('flash')->info("IP {$this->getRequest()->getClientIp()}");
         if (true || !EquiposRegistrados::existe($this->getRequest())) {
 
             if (($this->usuario = Usuarios::aleatorio()) instanceof Usuarios) {
@@ -34,14 +34,29 @@ class registroController extends Controller
 
     public function cambiar_clave_action()
     {
+        $this->usuario = $this->get("security")->getToken()->getUser();
         
+        $form = new Form($this->usuario);
+        
+        $form->add('clave','password')
+                ->setLabel('Contraseña')->required();
+        $form->add('clave2','password')
+                ->setLabel('Repetir Contraseña')
+                ->required()->equalTo('clave','Las contraseñas no coinciden');
+        
+        if ( $this->getRequest()->isMethod('post') ){
+            if($form->bindRequest($this->getRequest())->isValid()){
+                
+            }
+        }
+        
+        $this->form = $form;
     }
 
     protected function loguear(Usuarios $usuario)
     {
         return $this->get('firewall')->loginCheck(array(
                     'personaje' => $usuario->personaje,
-                    'clave' => $usuario->clave,
                 ));
     }
 
