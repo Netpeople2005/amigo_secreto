@@ -30,7 +30,6 @@ class Usuarios extends ActiveRecord implements UserInterface
         $usuario->begin();
 
         $usuario->en_uso = 1;
-        $usuario->clave = 123;
 
         if (!$usuario->save()) {
             $usuario->rollback();
