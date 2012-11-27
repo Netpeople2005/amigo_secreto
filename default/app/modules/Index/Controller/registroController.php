@@ -2,7 +2,7 @@
 
 namespace Index\Controller;
 
-use KumbiaPHP\Form\Form;
+use Index\Form\ClavesForm;
 use Index\Model\Usuarios;
 use Index\Model\EquiposRegistrados;
 use KumbiaPHP\Kernel\Controller\Controller;
@@ -34,20 +34,17 @@ class registroController extends Controller
 
     public function cambiar_clave_action()
     {
-        $this->usuario = $this->get("security")->getToken()->getUser();
+        $this->usuario = Usuarios::findByPK((int) $this->get("security")
+                                ->getToken('id'));
 
-        $form = new Form($this->usuario);
-
-        $form->add('clave', 'password')
-                ->setLabel('Contraseña')->required();
-        $form->add('clave2', 'password')
-                ->setLabel('Repetir Contraseña')
-                ->required()
-                ->equalTo('clave', 'Las contraseñas no coinciden...!!!');
+        $form = new ClavesForm($this->usuario);
 
         if ($this->getRequest()->isMethod('post')) {
             if ($form->bindRequest($this->getRequest())->isValid()) {
                 if ($this->usuario->save()) {
+                    //pasamos la clave guardada al usuario de la sesión.
+                    $this->get("security")->getToken()
+                                    ->getUser()->clave = $this->usuario->clave;
                     $this->get('flash')->success('La contraseña fué actualizada con exito...!!!');
                     return $this->getRouter()->redirect('index/inicio');
                 } else {
@@ -59,8 +56,8 @@ class registroController extends Controller
             }
         }
 
-        $form['clave'] = $form['clave2'] = null;//limpiamos los campos
-        
+        $form['clave_actual'] = $form['nueva_clave'] = $form['nueva_clave2'] = null; //limpiamos los campos
+
         $this->form = $form;
     }
 

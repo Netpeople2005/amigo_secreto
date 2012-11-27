@@ -21,5 +21,4 @@ class indexController extends Controller
             return $this->getRouter()->forward('registro/cambiar_clave');
         }
     }
-
 }
