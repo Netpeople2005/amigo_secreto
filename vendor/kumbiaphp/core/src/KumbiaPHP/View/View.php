@@ -59,10 +59,11 @@ class View
     public function render(array $params)
     {
         self::$content = null;
-        isset($params['template']) && $this->template = $params['template'];
-        isset($params['view']) && $this->view = $params['view'];
-        isset($params['response']) && $this->response = $params['response'];
-        isset($params['params']) && self::$variables = array_merge((array) $params['params'], self::$variables);
+        $this->template = isset($params['template']) ? $params['template'] : null;
+        $this->template = isset($params['template']) ? $params['template'] : null;
+        $this->view = isset($params['view']) ? $params['view'] : null;
+        $this->response = isset($params['response']) ? $params['response'] : null;
+        self::$variables = isset($params['params']) ? (array) $params['params'] : array();
 
         Autoload::registerDirectories(array(__DIR__ . '/Helper/'));
 
@@ -91,7 +92,7 @@ class View
 
             ob_start();
             if (null !== $this->response) {
-                $this->view .= '.' . $this->response;//si se estableció un response, lo concatenamos con el view
+                $this->view .= '.' . $this->response; //si se estableció un response, lo concatenamos con el view
             }
             require_once $this->findView($this->view, $scaffold);
             self::$content = ob_get_clean();

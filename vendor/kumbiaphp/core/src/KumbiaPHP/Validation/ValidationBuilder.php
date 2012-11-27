@@ -2,11 +2,7 @@
 
 namespace KumbiaPHP\Validation;
 
-/**
- *
- * @author manuel
- */
-class ValidationBuilder
+class ValidationBuilder implements \Serializable
 {
 
     const NOT_NULL = 'KumbiaPHP\\Validation\\Validators\\NotNull';
@@ -105,5 +101,14 @@ class ValidationBuilder
         return $this->valitations;
     }
 
-}
+    public function serialize()
+    {
+        return null;
+    }
 
+    public function unserialize($serialized)
+    {
+        $this->valitations = array();        
+    }
+
+}
