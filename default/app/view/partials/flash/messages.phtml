@@ -10,6 +10,7 @@ if (0 === count($messages = (array) View::flash()->getAll())) {
     return;
 }
 ?>
+<br/>
 <div class="messages-flash">
     <?php foreach ($messages as $type => $messages): ?>
         <?php foreach ((array) $messages as $message): ?>
