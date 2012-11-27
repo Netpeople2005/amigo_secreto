@@ -35,20 +35,31 @@ class registroController extends Controller
     public function cambiar_clave_action()
     {
         $this->usuario = $this->get("security")->getToken()->getUser();
-        
+
         $form = new Form($this->usuario);
-        
-        $form->add('clave','password')
+
+        $form->add('clave', 'password')
                 ->setLabel('Contraseña')->required();
-        $form->add('clave2','password')
+        $form->add('clave2', 'password')
                 ->setLabel('Repetir Contraseña')
-                ->required()->equalTo('clave','Las contraseñas no coinciden');
-        
-        if ( $this->getRequest()->isMethod('post') ){
-            if($form->bindRequest($this->getRequest())->isValid()){
-                
+                ->required()
+                ->equalTo('clave', 'Las contraseñas no coinciden...!!!');
+
+        if ($this->getRequest()->isMethod('post')) {
+            if ($form->bindRequest($this->getRequest())->isValid()) {
+                if ($this->usuario->save()) {
+                    $this->get('flash')->success('La contraseña fué actualizada con exito...!!!');
+                    return $this->getRouter()->redirect('index/inicio');
+                } else {
+                    $this->get('flash')->error('No se pudo actualizar la contraseña...!!!');
+                    $this->get('flash')->error($this->usuario->getErrors());
+                }
+            } else {
+                $this->get('flash')->error($form->getErrors());
             }
         }
+
+        $form['clave'] = $form['clave2'] = null;//limpiamos los campos
         
         $this->form = $form;
     }

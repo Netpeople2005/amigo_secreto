@@ -1,2 +1,10 @@
 <?php \KumbiaPHP\View\View::content(true) ?>
-<?php echo $form ?>
+<?php echo $form->open() ?>
+<dl>
+    <dd><label><?php echo $form['clave']['label'] ?></label></dd>
+    <dt><?php echo $form['clave'] ?></dt>
+    <dd><label><?php echo $form['clave2']['label'] ?></label></dd>
+    <dt><?php echo $form['clave2'] ?></dt>
+</dl>
+<input type="submit" value="Guardar" />
+<?php echo $form->close() ?>

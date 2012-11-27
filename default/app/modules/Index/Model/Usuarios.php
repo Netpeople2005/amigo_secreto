@@ -50,6 +50,7 @@ class Usuarios extends ActiveRecord implements UserInterface
 
     public function auth(UserInterface $user)
     {
+        var_dump($user);
         return true;
     }
 
@@ -65,7 +66,15 @@ class Usuarios extends ActiveRecord implements UserInterface
 
     public function getUsername()
     {
-        return $this->personaje;        
+        return $this->personaje;
+    }
+
+    protected function beforeSave()
+    {
+        //cuando exista clave2 es porque se está actualizando la contraseña
+        if (isset($this->clave2)) {
+            $this->clave = $this->clave2 = md5($this->clave2);
+        }
     }
 
 }
