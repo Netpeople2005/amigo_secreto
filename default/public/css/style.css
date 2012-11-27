@@ -75,3 +75,9 @@ footer a {color:#ba1000}
 #ContactForm a {margin:0 5px;width:84px;text-align:center}
 #ContactForm .input {width:320px;height:15px;border:1px solid #e1e6e4;background:#f9fffd;padding:1px 5px;margin-bottom:6px;font:12px Arial, Helvetica, sans-serif;color:#676767;margin-right:236px;float:right}
 #ContactForm textarea {overflow:auto;width:556px;height:319px;border:1px solid #e1e6e4;background:#f9fffd;padding:1px 5px;margin-bottom:15px;font:12px Arial, Helvetica, sans-serif;color:#676767;float:right}
+/************** estilos para los flash ********************/
+.flash{padding:8px 10px;margin-bottom:20px;color:#c09853;box-shadow:-2px 4px 6px #AAAAAA;background-color:transparent;border:1px solid #E4E9E7;-webkit-border-radius:4px;-moz-border-radius:4px;border-radius:4px}
+.error{color:#FFF;background-color:#DD1900}
+.info{color:#3a87ad;background-color:#F7F7F4}
+.success{color:#FFF;background-color:#3ABAE7}
+.warning{color:#9F6000;background-color:#FEEFB3}
