@@ -14,7 +14,7 @@ class JsonResponse extends Response
 
     /**
      * Constructor de la clase
-     * @param string $content contenido para la respuesta
+     * @param array $data contenido para la respuesta
      * @param int $statusCode numero del estado de la respuesta
      * @param array $headers cabeceras para la respuesta
      */
@@ -25,6 +25,15 @@ class JsonResponse extends Response
         if (!$this->headers->has('Content-Type')) {
             $this->headers->set('Content-Type', 'application/json');
         }
+    }
+    
+    /**
+     * Establece el contenido para la respuesta
+     * @param array $data contenido para la respuesta
+     */
+    public function setContent($data)
+    {
+        parent::setContent(json_encode($data));
     }
 
 }

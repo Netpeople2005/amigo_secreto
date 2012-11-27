@@ -75,7 +75,6 @@ class Request
      */
     public function __construct($baseUrl = NULL)
     {
-        $this->baseUrl = $baseUrl;
         $this->server = new Collection($_SERVER);
         $this->request = new Collection($_POST);
         $this->query = new Collection($_GET);
@@ -94,6 +93,12 @@ class Request
             //si los datos de la petición se envian en formato JSON
             //los convertimos en una arreglo.
             $this->request = new Collection((array) json_decode($this->getContent(), TRUE));
+        }
+
+        if ($baseUrl) {
+            $this->baseUrl = $baseUrl;
+        } else {
+            $this->baseUrl = $this->createBaseUrl();
         }
     }
 
@@ -177,9 +182,6 @@ class Request
      */
     public function getBaseUrl()
     {
-        if (!$this->baseUrl) {
-            $this->baseUrl = $this->createBaseUrl();
-        }
         return $this->baseUrl;
     }
 
@@ -238,7 +240,7 @@ class Request
             if (false !== $pos = strpos($uri, '?')) {
                 $uri = substr($uri, 0, $pos);
             }
-            return str_replace($this->query->get('_url'), '/', urldecode($uri));
+            return str_replace($this->getRequestUrl(), '/', urldecode($uri));
         } else {
             return $uri;
         }

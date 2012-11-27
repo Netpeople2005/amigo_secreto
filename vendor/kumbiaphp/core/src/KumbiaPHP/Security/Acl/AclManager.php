@@ -4,7 +4,7 @@ namespace KumbiaPHP\Security\Acl;
 
 use KumbiaPHP\Kernel\Request;
 use KumbiaPHP\Security\Acl\Acl;
-use KumbiaPHP\Security\Config\Reader;
+use KumbiaPHP\Kernel\Config\Reader;
 use KumbiaPHP\Security\Exception\AclException;
 use KumbiaPHP\Security\Acl\Role\RoleInterface;
 use KumbiaPHP\Security\Auth\Token\TokenInterface;
@@ -61,7 +61,7 @@ class AclManager
     protected static function getResources($role = NULL)
     {
         if (!self::$resources) {
-            foreach ((array) Reader::get('routes') as $route => $roles) {
+            foreach ((array) Reader::get('security.routes') as $route => $roles) {
                 foreach (explode(',', $roles) as $r) {
                     self::$resources[trim($r)][] = $route;
                 }

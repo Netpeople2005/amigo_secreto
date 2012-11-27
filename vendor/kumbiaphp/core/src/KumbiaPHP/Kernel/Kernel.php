@@ -176,7 +176,6 @@ abstract class Kernel implements KernelInterface
         if (!self::$container) { //si no se ha creado el container lo creamos.
             $this->init($request);
             self::$container->get('app.context')->setRequestType($type);
-            $this->production || $this->validateModules();
         }
         //agregamos el request al container
         self::$container->setInstance('request', $this->request);
@@ -218,13 +217,15 @@ abstract class Kernel implements KernelInterface
         //como la acción no devolvió respuesta, debemos
         //obtener la vista y el template establecidos en el controlador
         //para pasarlos al servicio view, y este construya la respuesta
-        $view = $resolver->callMethod('getView');
-        $template = $resolver->callMethod('getTemplate');
-        $cache = $resolver->callMethod('getCache');
-        $properties = $resolver->getPublicProperties(); //nos devuelve las propiedades publicas del controlador
         //llamamos al render del servicio "view" y esté nos devolverá
         //una instancia de response con la respuesta creada
-        return self::$container->get('view')->render($template, $view, $properties, $cache);
+        return self::$container->get('view')->render(array(
+                    'template' => $resolver->callMethod('getTemplate'),
+                    'view' => $resolver->callMethod('getView'),
+                    'response' => $resolver->callMethod('getResponse'),
+                    'time' => $resolver->callMethod('getCache'),
+                    'params' => $resolver->getPublicProperties(), //nos devuelve las propiedades publicas del controlador
+                ));
     }
 
     private function exception(\Exception $e)
@@ -300,7 +301,7 @@ abstract class Kernel implements KernelInterface
 
     /**
      * Esta función inicializa el contenedor de servicios.
-     * @param Collection $reader toda la configuracion de los archivos de config
+     * @param array $config toda la configuracion de los archivos de config
      * de cada lib y modulo compilados en uno solo.
      */
     protected function initContainer(array $config = array())
@@ -315,18 +316,11 @@ abstract class Kernel implements KernelInterface
         $this->di = new DependencyInjection();
 
         self::$container = new Container($this->di, $definitions);
-
-        //si se estan usando locales y ningun módulo a establecido una definición para
-        //el servicio translator, lo hacemos por acá.
-        if (isset($definitions['parameters']['config.locales'])
-                && !self::$container->has('translator')) {
-            self::$container->set('translator', 'KumbiaPHP\\Translation\\Translator');
-        }
     }
 
     /**
      * Inicializa el despachador de eventos
-     * @param Collection $reader config de todo el proyecto.
+     * @param array $config config de todo el proyecto.
      */
     protected function initDispatcher(array $config = array())
     {
@@ -340,15 +334,6 @@ abstract class Kernel implements KernelInterface
         }
 
         self::$container->setInstance('dispatcher', $this->dispatcher);
-    }
-
-    private function validateModules()
-    {
-        foreach ($this->modules as $module => $path) {
-            if (false === is_dir($route = rtrim($path, '/') . "/{$module}")) {
-                throw new \InvalidArgumentException("No existe la ruta \"$route\" para el módulo \"$module\"");
-            }
-        }
     }
 
 }

@@ -2,7 +2,7 @@
 
 namespace KumbiaPHP\Security\Auth\Login;
 
-use KumbiaPHP\Security\Config\Reader;
+use KumbiaPHP\Kernel\Config\Reader;
 use KumbiaPHP\Security\Auth\Login\AbstractLogin;
 
 /**
@@ -16,7 +16,7 @@ class Form extends AbstractLogin
     public function showLogin()
     {
         $currentUrl = $this->container->get('request')->getRequestUrl();
-        $login_url = Reader::get('security.login_url');
+        $login_url = Reader::get('security.security.login_url');
         if ($currentUrl !== $login_url) {
             $this->container->get('session')
                     ->set('target_login', $currentUrl, 'security');

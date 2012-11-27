@@ -18,5 +18,5 @@ interface UserProviderInterface
      *  @return UserInterface
      */
     public function loadUser(TokenInterface $token);
-    public function getToken(array $config = array());
+    public function getToken(array $config = array(), array $data = null);
 }

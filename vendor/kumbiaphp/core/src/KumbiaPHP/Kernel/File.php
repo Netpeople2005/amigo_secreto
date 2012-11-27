@@ -27,7 +27,7 @@ class File
         isset($data['size']) && $this->size = $data['size'];
         isset($data['error']) && $this->error = $data['error'];
 
-        if ($ext = explode('.', $this->name)) {
+        if (1 < count($ext = explode('.', $this->name))) {
             $this->extension = end($ext);
         }
     }

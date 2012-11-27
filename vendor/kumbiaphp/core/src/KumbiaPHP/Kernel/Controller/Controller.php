@@ -34,11 +34,20 @@ class Controller
     protected $template = 'default';
 
     /**
+     * response a usar en la vista, por ejemplo si response es xml la vista será
+     * 
+     * nombrevista.xml.phtml, si es json la vista es por ejemplo index.json.phtml
+     * 
+     * @var string 
+     */
+    protected $response;
+
+    /**
      * Tiempo de cacheado ( debe ser una fecha relativa ).
      * 
      * @var string 
      */
-    protected $cache = NULL;
+    protected $cache = null;
 
     /**
      * indica si se deben limitar el numero de parametros en las acciones ó no.
@@ -98,10 +107,23 @@ class Controller
      * @param string $view
      * @param string $template 
      */
-    protected function setView($view, $template = FALSE)
+    protected function setView($view, $template = false)
     {
         $this->view = $view;
-        if ($template !== FALSE) {
+        if ($template !== false) {
+            $this->setTemplate($template);
+        }
+    }
+
+    /**
+     * Establece el response para la vista
+     * @param string $response
+     * @param string $template 
+     */
+    protected function setResponse($response, $template = false)
+    {
+        $this->response = $response;
+        if ($template !== false) {
             $this->setTemplate($template);
         }
     }
@@ -125,6 +147,15 @@ class Controller
     }
 
     /**
+     * devuelve el response a usar
+     * @return string 
+     */
+    protected function getResponse()
+    {
+        return $this->response;
+    }
+
+    /**
      * devuelve el template a mostarr
      * @return string 
      */
@@ -144,7 +175,7 @@ class Controller
      * 
      * @param string $time
      */
-    protected function cache($time = FALSE)
+    protected function cache($time = false)
     {
         $this->cache = $time;
     }
@@ -162,9 +193,15 @@ class Controller
      * @param type $time
      * @return Response 
      */
-    protected function render(array $params = array(), $time = NULL)
+    protected function render(array $params = array(), $time = null)
     {
-        return $this->get('view')->render($this->getTemplate(), $this->getView(), $params, $time);
+        return $this->get('view')->render(array(
+                    'template' => $this->getTemplate(),
+                    'view' => $this->getView(),
+                    'response' => $this->getResponse(),
+                    'params' => $params,
+                    'time' => $time,
+                ));
     }
 
 }

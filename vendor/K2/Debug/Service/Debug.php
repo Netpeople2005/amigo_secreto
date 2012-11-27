@@ -91,12 +91,16 @@ class Debug
 
             if (false !== $pos = $posrFunction($content, '</body>')) {
 
-                $html = $this->view->render('K2/Debug:banner', null, array(
-                            'queries' => $this->session->all('k2_debug_queries'),
-                            'dumps' => $this->dumps,
-                            'headers' => $response->headers->all(),
-                            'status' => $response->getStatusCode(),
-                            'charset' => $response->getCharset(),
+                $html = $this->view->render(
+                                array(
+                                    'template' => 'K2/Debug:banner',
+                                    'params' => array(
+                                        'queries' => $this->session->all('k2_debug_queries'),
+                                        'dumps' => $this->dumps,
+                                        'headers' => $response->headers->all(),
+                                        'status' => $response->getStatusCode(),
+                                        'charset' => $response->getCharset(),
+                                    ),
                         ))->getContent();
 
                 $this->session->delete(null, 'k2_debug_queries');

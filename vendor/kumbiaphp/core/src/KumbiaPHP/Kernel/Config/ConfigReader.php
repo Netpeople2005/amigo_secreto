@@ -56,7 +56,7 @@ class ConfigReader
         foreach ($dirs as $namespace => $dir) {
             $configFile = rtrim($dir, '/') . '/' . $namespace . '/config/config.ini';
             $servicesFile = rtrim($dir, '/') . '/' . $namespace . '/config/services.ini';
-            
+
             if (is_file($configFile)) {
                 foreach (parse_ini_file($configFile, TRUE) as $sectionType => $values) {
 
@@ -78,7 +78,7 @@ class ConfigReader
 
         unset($section['config']); //esta seccion esta disponible en parameters con el prefio config.*
 
-        return $section;
+        return $this->prepareAditionalConfig($section);
     }
 
     public function getConfig()
@@ -124,6 +124,54 @@ class ConfigReader
             }
         }
         return $section;
+    }
+
+    /**
+     * Añade configuraciones adicionales al arreglo de los servicios y patametros,
+     * como por ejemplo configurar el servicio que reescribe las url, para que sea
+     * el primero en ejecutarse, configurar el servicio de traducciones, etc.
+     * @param array $configs recibe las configuraciones de servicios y parametros
+     * @return array devuelve las configuraciones actualizadas
+     */
+    protected function prepareAditionalConfig($configs)
+    {
+        //si se usa el routes lo añadimos al container
+        if (isset($configs['parameters']['config.routes'])) {
+            $router = substr($configs['parameters']['config.routes'], 1);
+
+            //si es el router por defecto quien reescribirá las url
+            if ('router' === $router) {
+                //solo le añadimos un listener.
+                $configs['services']['router']
+                        ['listen']['rewrite'] = 'kumbia.request';
+            } else/*if (isset($configs['services'][$router]))*/ {
+                //si es un servicio distinto al router. y existe,
+                //lo añadimos al principio de todos los servicios.
+                $def = $configs['services'][$router]; //guardamos la definición del servicio en una variable temporal.
+                unset($configs['services'][$router]); //eliminamos la definición del arreglo $config
+                //volteamos el arreglo de servicios, para insertar de nuevo la definición.
+                $configs['services'] = array_reverse($configs['services'], true);
+                //insertamos la definición, quedando esta al final del array.
+                $configs['services'][$router] = $def;
+                //volvemos a voltear los servicios, con lo que la definición insertada
+                //queda de primera.
+                $configs['services'] = array_reverse($configs['services'], true);
+                //esto es importante debido a que queremos que el primer escucha que siempre
+                //se ejecute sea el que hace las reescrituras de url, para que cuando se
+                //llamen a los siguientes escuchas ya la url esté reescrita.
+            }
+        }
+
+        //si se estan usando locales y ningun módulo a establecido una definición para
+        //el servicio translator, lo hacemos por acá.
+        if (isset($configs['parameters']['config.locales'])
+                && !isset($configs['services']['translator'])) {
+            $configs['services']['translator'] = array(
+                'class' => 'KumbiaPHP\\Translation\\Translator',
+            );
+        }
+
+        return $configs;
     }
 
 }

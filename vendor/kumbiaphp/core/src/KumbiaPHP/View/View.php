@@ -21,6 +21,7 @@ class View
 
     protected $template;
     protected $view;
+    protected $response;
     protected static $variables = array();
     protected static $content = '';
 
@@ -40,12 +41,28 @@ class View
         define('APP_CHARSET', self::$container->getParameter('config.charset') ? : 'UTF-8');
     }
 
-    public function render($template, $view, array $params = array(), $cacheTime = NULL)
+    /**
+     * Devuelve un objeto response a partir de los parametros especificados en el
+     * array $params.
+     * 
+     * Los posibles parametros que recibe el método son:
+     * 
+     * template: nombre del template a usar
+     * response: tipo de respuesta a mostrar
+     * view: nombre de la vista
+     * params: arreglo con los parametros a usar en la vista
+     * time: tiempo de cache para la respuesta
+     * 
+     * @param array $params arreglo con los parametros que usará el método render
+     * @return \KumbiaPHP\Kernel\Response 
+     */
+    public function render(array $params)
     {
-        self::$content = NULL;
-        $this->template = $template;
-        $this->view = $view;
-        self::$variables = array_merge($params, self::$variables);
+        self::$content = null;
+        isset($params['template']) && $this->template = $params['template'];
+        isset($params['view']) && $this->view = $params['view'];
+        isset($params['response']) && $this->response = $params['response'];
+        isset($params['params']) && self::$variables = array_merge((array) $params['params'], self::$variables);
 
         Autoload::registerDirectories(array(__DIR__ . '/Helper/'));
 
@@ -53,30 +70,33 @@ class View
 
         $response = new Response($this->getContent());
         $response->setCharset(APP_CHARSET);
-        $response->cache($cacheTime);
+        $response->cache(isset($params['time']) ? $params['time'] : null);
 
         return $response;
     }
 
     public static function getVar($name)
     {
-        return array_key_exists($name, self::$variables) ? self::$variables[$name] : NULL;
+        return array_key_exists($name, self::$variables) ? self::$variables[$name] : null;
     }
 
     protected function getContent()
     {
         extract(self::$variables, EXTR_OVERWRITE);
 
-        isset($scaffold) || $scaffold = FALSE;
+        isset($scaffold) || $scaffold = false;
 
         //si va a mostrar vista
-        if ($this->view !== NULL) {
+        if ($this->view !== null) {
 
             ob_start();
+            if (null !== $this->response) {
+                $this->view .= '.' . $this->response;//si se estableció un response, lo concatenamos con el view
+            }
             require_once $this->findView($this->view, $scaffold);
             self::$content = ob_get_clean();
         }
-        if ($this->template !== NULL) {
+        if ($this->template !== null) {
 
             ob_start();
             require_once $this->findTemplate($this->template);
@@ -86,7 +106,7 @@ class View
         return self::$content;
     }
 
-    public static function content($showFlash = FALSE)
+    public static function content($showFlash = false)
     {
         echo self::$content;
         self::$content = '';
@@ -131,7 +151,7 @@ class View
         return self::$container->get($service);
     }
 
-    public static function partial($partial, $time = FALSE, $params = array())
+    public static function partial($partial, $time = false, $params = array())
     {
         /* @var $app \KumbiaPHP\Kernel\AppContext */
         $app = self::$container->get('app.context');
@@ -190,7 +210,7 @@ class View
         return $file;
     }
 
-    protected function findView($view, $scaffold = FALSE)
+    protected function findView($view, $scaffold = false)
     {
         /* @var $app \KumbiaPHP\Kernel\AppContext */
         $app = self::$container->get('app.context');

@@ -2,10 +2,11 @@
 
 namespace KumbiaPHP\Kernel\Router;
 
+use KumbiaPHP\Kernel\Kernel;
 use KumbiaPHP\Kernel\Request;
-use KumbiaPHP\Kernel\AppContext;
-use KumbiaPHP\Kernel\KernelInterface;
+use KumbiaPHP\Kernel\Config\Reader;
 use KumbiaPHP\Kernel\RedirectResponse;
+use KumbiaPHP\Kernel\Event\RequestEvent;
 use KumbiaPHP\Kernel\Router\RouterInterface;
 
 /**
@@ -17,23 +18,10 @@ class Router implements RouterInterface
 {
 
     /**
-     *
-     * @var AppContext
+     * Numero de veces que se llama al método forward en una misma petición.
+     * @var int 
      */
-    protected $app;
-
-    /**
-     *
-     * @var KernelInterface
-     */
-    protected $kernel;
     private $forwards = 0;
-
-    public function __construct(AppContext $app, KernelInterface $kernel)
-    {
-        $this->app = $app;
-        $this->kernel = $kernel;
-    }
 
     /**
      * Redirije la petición a otro modulo/controlador/accion de la aplicación.
@@ -42,7 +30,7 @@ class Router implements RouterInterface
      */
     public function redirect($url = NULL, $status = 302)
     {
-        return new RedirectResponse($this->app->createUrl($url), $status);
+        return new RedirectResponse(Kernel::get('app.context')->createUrl($url), $status);
     }
 
     /**
@@ -52,7 +40,7 @@ class Router implements RouterInterface
      */
     public function toAction($action = NULL, $status = 302)
     {
-        $url = $this->app->getControllerUrl($action);
+        $url = Kernel::get('app.context')->getControllerUrl($action);
         return new RedirectResponse($url, $status);
     }
 
@@ -69,12 +57,46 @@ class Router implements RouterInterface
             throw new \LogicException("Se ha detectado un ciclo de redirección Infinito...!!!");
         }
         //clono el request y le asigno la nueva url.
-        $request = clone \KumbiaPHP\Kernel\Kernel::get('request');
+        $request = clone Kernel::get('request');
 
-        $request->query->set('_url', '/' . ltrim($this->app->createUrl($url, false), '/'));
+        $request->query->set('_url', '/' . ltrim(Kernel::get('app.context')->createUrl($url, false), '/'));
 
         //retorno la respuesta del kernel.
-        return $this->kernel->execute($request, KernelInterface::SUB_REQUEST);
+        return Kernel::get('app.kernel')->execute($request, Kernel::SUB_REQUEST);
+    }
+
+    public function rewrite(RequestEvent $event)
+    {
+        Reader::read('routes');
+
+        $newUrl = $url = $event->getRequest()->getRequestUrl();
+        $routes = Reader::get('routes.routes');
+
+        if (isset($routes[$url])) {
+            //si existe la ruta exacta usamos esa
+            $newUrl = $routes[$url];
+        } else {
+            // Si existe una ruta con el comodin * crea la nueva ruta
+            foreach ($routes as $key => $val) {
+                if ($key == '/*') {
+                    $newUrl = rtrim($val, '/*') . $url;
+                    break;
+                } elseif (strripos($key, '*', -1)) {
+                    $key = rtrim($key, '/*');
+                    if (strncmp($url, $key, strlen($key)) == 0) {
+                        $newUrl = str_replace($key, rtrim($val, '/*'), $url);
+                        break;
+                    }
+                }
+            }
+        }
+
+        //si la url fué reescrita
+        if ($newUrl !== $url) {
+            //actualizamos la url en el Request y llamamos al parseUrl del AppContext
+            $event->getRequest()->query->set('_url', '/' . ltrim($newUrl, '/'));
+            $event->getRequest()->getAppContext()->parseUrl();
+        }
     }
 
 }

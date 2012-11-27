@@ -2,8 +2,8 @@
 
 namespace KumbiaPHP\Security\Listener;
 
+use KumbiaPHP\Kernel\Config\Reader;
 use KumbiaPHP\Security\Event\Events;
-use KumbiaPHP\Security\Config\Reader;
 use KumbiaPHP\Security\Acl\AclManager;
 use KumbiaPHP\Kernel\Event\RequestEvent;
 use KumbiaPHP\Security\Auth\AuthManager;
@@ -30,7 +30,7 @@ class Firewall
     function __construct(ContainerInterface $container)
     {
         $this->container = $container;
-        Reader::readSecurityConfig($container->get('app.context'));
+        Reader::read('security');
     }
 
     /**
@@ -44,12 +44,13 @@ class Firewall
         //verificamos la existencia del token en la session.
         //if (!$this->container->get('session')->has('token', 'security')) {
         if (!$this->container->get('security')->isLogged()) {
-            if ($url === Reader::get('security.login_url') && !$event->getRequest()->isMethod('post')) {
+            if ($url === Reader::get('security.security.login_url') 
+                    && !$event->getRequest()->isMethod('post')) {
                 //si no existe el token y la url es la del logueo, nos vamos.
                 return;
             } elseif ((($this->isSecure($url) || $url === '/_autenticate')
                     && $event->getRequest()->isMethod('post')) ||
-                    ('http' === Reader::get('security.type') &&
+                    ('http' === Reader::get('security.security.type') &&
                     $event->getRequest()->server->get('PHP_AUTH_USER') &&
                     $event->getRequest()->server->get('PHP_AUTH_PW'))
             ) {
@@ -58,11 +59,12 @@ class Firewall
                 $event->setResponse($this->loginCheck());
                 return;
             }
-        } elseif ($url === Reader::get('security.login_url') || $url === '/_autenticate') {
+        } elseif ($url === Reader::get('security.security.login_url') 
+                || $url === '/_autenticate') {
             //si ya existe el token y estamos en la url del form de logueo, mandamos al target_login
             $event->stopPropagation();
             $event->setResponse($this->container->get('router')
-                            ->redirect(Reader::get('security.target_login')));
+                            ->redirect(Reader::get('security.security.target_login')));
             return;
         }
 
@@ -97,7 +99,7 @@ class Firewall
      */
     protected function isSecure($url)
     {
-        $routes = (array) Reader::get('routes');
+        $routes = (array) Reader::get('security.routes');
         if (isset($routes[$url])) {
             return $routes[$url];
         }
@@ -114,10 +116,12 @@ class Firewall
      * Devuelve un arreglo con las instancias del proveedor de usuarios
      * y el token.
      * @param string $provider
+     * @param array|null $data Si se pasa $data se usará para obtener los datos con los
+     * que se cargará el token y el usuario para el chequeo.
      * @return array
      * @throws AuthException 
      */
-    protected function getProviderAndToken($provider)
+    protected function getProviderAndToken($provider,array $data = null)
     {
         if (0 === strpos($provider, '@')) {
             $provider = $this->container->get(str_replace('@', '', $provider));
@@ -136,17 +140,19 @@ class Firewall
             throw new AuthException("la clase proveedora de usuarios debe implementar la interface UserProviderInterface");
         }
 
-        return array($provider, $provider->getToken((array) Reader::get('model_config.user')));
+        return array($provider, $provider->getToken((array) Reader::get('security.model_config.user'), $data));
     }
 
     /**
-     *
-     * @return type 
+     * Efectua el proceso de logueo.
+     * @param array $data
+     * @return Response devuelve una redireción hacia la ruta deseada, si se logueó correctamente,
+     * ó una redireción al formulario de logueo.
      */
-    public function loginCheck()
+    public function loginCheck(array $data = null)
     {
         try {
-            list ($provider, $token) = $this->getProviderAndToken(Reader::get('security.provider'));
+            list ($provider, $token) = $this->getProviderAndToken(Reader::get('security.security.provider'), $data);
 
             $auth = new AuthManager($provider);
 
@@ -169,7 +175,7 @@ class Firewall
                 $this->container->get('session')->delete('target_login', 'security');
                 return $this->container->get('router')->redirect($url);
             } else {
-                return $this->container->get('router')->redirect(Reader::get('security.target_login'));
+                return $this->container->get('router')->redirect(Reader::get('security.security.target_login'));
             }
         } catch (UserNotFoundException $e) {
             $this->container->get('flash')->set("LOGIN_ERROR", "Usuario ó Contraseña Invalidos");
@@ -184,7 +190,7 @@ class Firewall
      */
     public function showLogin()
     {
-        $typeLoginClassName = 'KumbiaPHP\\Security\\Auth\\Login\\' . ucfirst(Reader::get('security.type'));
+        $typeLoginClassName = 'KumbiaPHP\\Security\\Auth\\Login\\' . ucfirst(Reader::get('security.security.type'));
         if (!class_exists($typeLoginClassName)) {
             throw new AuthException("No existe el Tipo del Logueo $typeLoginClassName");
         }
@@ -199,7 +205,7 @@ class Firewall
      */
     public function logout()
     {
-        $typeLoginClassName = 'KumbiaPHP\\Security\\Auth\\Login\\' . ucfirst(Reader::get('security.type'));
+        $typeLoginClassName = 'KumbiaPHP\\Security\\Auth\\Login\\' . ucfirst(Reader::get('security.security.type'));
 
         if (!class_exists($typeLoginClassName)) {
             die("No existe el Tipo del Logueo $typeLoginClassName");
@@ -218,7 +224,7 @@ class Firewall
         }
 
         return $this->container->get('router')
-                        ->redirect(Reader::get('security.target_logout'));
+                        ->redirect(Reader::get('security.security.target_logout'));
     }
 
 }

@@ -146,10 +146,10 @@ class Html extends AbstractHelper
 
     public static function includeJs()
     {
-        $js = Tag::getJs();
+        $js = array_unique(Tag::getJs(), SORT_REGULAR);
         self::sortByPriority($js);
         $code = '<script type="text/javascript">var BASE_URL = "' . self::$app->getBaseUrl() . '";</script>' . PHP_EOL;
-        foreach (array_unique($js, SORT_REGULAR) as $e) {
+        foreach ($js as $e) {
             $code .= '<script type="text/javascript" src="' . self::$app->getBaseUrl() . $e['src'] . '.js"></script>' . PHP_EOL;
         }
         return $code;

@@ -551,7 +551,7 @@ class Form implements ArrayAccess, Validatable
         /* @var $attribute \ActiveRecord\Metadata\Attribute */
         foreach ($model->metadata()->getAttributes() as $fieldName => $attribute) {
             if (($field = $this->getField($fieldName)) instanceof Field) {//si se creó el elemento
-                if (true === $attribute->notNull) {
+                if (true === $attribute->notNull && !$attribute->PK && !$attribute->default) {
                     $field->required();
                 }
                 if (null !== $attribute->length && is_numeric($attribute->length)) {

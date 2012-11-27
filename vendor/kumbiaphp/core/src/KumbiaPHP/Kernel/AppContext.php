@@ -394,7 +394,7 @@ class AppContext
      * y los almacena en los atributos de la clase.
      * @throws NotFoundException 
      */
-    protected function parseUrl()
+    public function parseUrl()
     {
         $controller = 'index'; //controlador por defecto si no se especifica.
         $action = 'index'; //accion por defecto si no se especifica.

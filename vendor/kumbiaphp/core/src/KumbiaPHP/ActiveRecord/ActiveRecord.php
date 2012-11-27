@@ -36,7 +36,7 @@ class ActiveRecord extends Model implements Validatable
             $this->validation = new ValidationBuilder();
             /* @var $attribute \ActiveRecord\Metadata\Attribute */
             foreach ($this->metadata()->getAttributes() as $field => $attribute) {
-                if (true === $attribute->notNull && !$attribute->PK) {
+                if (true === $attribute->notNull && !$attribute->PK && !$attribute->default) {
                     $this->validation->notNull($field, array(
                         'message' => "El Campo {field} no puede ser Nulo",
                         'field' => $attribute->alias,
