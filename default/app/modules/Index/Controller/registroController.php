@@ -12,7 +12,7 @@ class registroController extends Controller
 
     public function index_action()
     {
-        if (true || !EquiposRegistrados::existe($this->getRequest())) {
+        if (!EquiposRegistrados::existe($this->getRequest())) {
 
             if (($this->usuario = Usuarios::aleatorio()) instanceof Usuarios) {
 
