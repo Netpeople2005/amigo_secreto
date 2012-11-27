@@ -36,15 +36,13 @@ class registroController extends Controller
     {
         
     }
-    
+
     protected function loguear(Usuarios $usuario)
     {
-        $this->getRequest()->request->set('form_login', array(
-            'personaje' => $usuario->personaje,
-            'clave' => $usuario->clave,
-        ));
-        
-        return $this->get('firewall')->loginCheck();
+        return $this->get('firewall')->loginCheck(array(
+                    'personaje' => $usuario->personaje,
+                    'clave' => $usuario->clave,
+                ));
     }
 
 }
