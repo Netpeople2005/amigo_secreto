@@ -24,6 +24,10 @@ class chatController extends Controller{
         
         $this->mensajes = array_reverse(Chat::getMensajes());
         
+        $ultimo_mensaje = end($this->mensajes);
+        
+        $this->ultimo_id = $ultimo_mensaje['mensaje_id'];
+        
     }
     
     public function enviar_mensaje_action() {

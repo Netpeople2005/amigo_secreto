@@ -1,5 +1,5 @@
 
-<?php Tag::js('chat') ?>
+<?php Tag::js('chat', 200) ?>
 
 <style>
     #chatbox {
@@ -22,13 +22,14 @@
 <div id="chatbox">
     <?php foreach ($mensajes as $value) : ?>
 
-        <p><span><?php echo $value['personaje'] . ' dice:' ?><br></span>
-            <?php echo $value['texto'] ?></p>
+        <p><span><?php echo $value['nombre'] . ' dice:' ?><br></span>
+            <?php echo $value['mensaje'] ?></p>
 
     <?php endforeach; ?>
 </div>
 <div>
-    <?php echo Form::open('chat/enviar_mensaje')?>
+    <?php echo Form::open('chat/enviar_mensaje', 'post', array('id' => 'chatform'))?>
+    <?php echo Form::hidden('ultimo_id', null, $ultimo_id)?>
     <textarea id="chatinput" name="mensaje"></textarea>
     <?php echo Form::close()?>
 </div>
