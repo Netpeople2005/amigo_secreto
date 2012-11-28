@@ -31,7 +31,11 @@
                     </div>
                 </article>
                 <article class="col2 pad_left1">
-                    <?php KumbiaPHP\View\View::partial('barra_derecha') ?>                   
+                    <?php if (KumbiaPHP\View\View::get('security')->isLogged()): ?>
+                        <?php KumbiaPHP\View\View::partial('barra_derecha') ?>                   
+                    <?php else: ?>
+                        <?php KumbiaPHP\View\View::partial('inicio_sesion') ?>                   
+                    <?php endif; ?>
                 </article>
             </section>
             <!-- / content -->

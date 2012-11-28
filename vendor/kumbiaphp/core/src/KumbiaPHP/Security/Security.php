@@ -13,6 +13,8 @@ use KumbiaPHP\Security\Auth\Token\TokenInterface;
  */
 class Security
 {
+    
+    const LOGIN_ERROR = 'LOGIN_ERROR';
 
     /**
      *

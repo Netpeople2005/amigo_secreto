@@ -1,5 +1,5 @@
 <?php \KumbiaPHP\View\View::content(true) ?>
-<?php echo $form->open() ?>
+<?php echo $form->open(array('class' =>'form')) ?>
 <dl>
     <?php if (isset($form['clave_actual'])): ?>
         <dd><label><?php echo $form['clave_actual']['label'] ?></label></dd>
@@ -9,6 +9,8 @@
     <dt><?php echo $form['nueva_clave'] ?></dt>
     <dd><label><?php echo $form['nueva_clave2']['label'] ?></label></dd>
     <dt><?php echo $form['nueva_clave2'] ?></dt>
+    <dd><label></label></dd>
+    <dt><input type="submit" value="Guardar" class="button"/></dt>
 </dl>
-<input type="submit" value="Guardar" />
+<div style="clear: both"></div>
 <?php echo $form->close() ?>

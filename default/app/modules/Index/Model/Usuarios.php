@@ -50,8 +50,11 @@ class Usuarios extends ActiveRecord implements UserInterface
 
     public function auth(UserInterface $user)
     {
-        var_dump($user);
-        return true;
+        if (null === $this->clave) {
+            return true;
+        } else {
+            return $this->clave === md5($user->clave);
+        }
     }
 
     public function getPassword()

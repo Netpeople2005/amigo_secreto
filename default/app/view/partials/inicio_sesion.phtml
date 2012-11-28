@@ -1,0 +1,34 @@
+<?php
+
+use KumbiaPHP\View\View;
+use Index\Model\Usuarios;
+use KumbiaPHP\Security\Security;
+
+if (View::get('session')->has(Security::LOGIN_ERROR)) {
+    $mensaje = "Personaje ó Contraseña Incorrectos";
+    View::get('session')->delete(Security::LOGIN_ERROR);
+} else {
+    $mensaje = null;
+}
+?>
+<div class="box1">
+    <h2><span><span><strong>&nbsp;</strong>Iniciar Sesion</span></span></h2>
+    <?php echo Form::open('_autenticate', 'post', 'class="form login"') ?>
+    <?php eh($mensaje) ?>
+    <label>Usuario</label>
+    <select name="form_login[personaje]">
+        <option>- Seleccione -</option>
+        <?php foreach ((array) Usuarios::findAll('array') as $user): ?>
+            <option value="<?php eh($user['personaje']) ?>"><?php eh($user['personaje']) ?></option>
+        <?php endforeach ?>
+    </select>      
+    <label>Contraseña</label>
+    <?php echo Form::pass('form_login.clave') ?>
+    <input type="submit" value="Entrar" class="button" />
+    <?php echo Form::close() ?>
+    <hr/>
+    <div class="centrer pad_bot2">
+        <?php echo Html::link('registro', '<span><span>Obtener un Personaje</span>', 'class="button"') ?>
+    </div>
+</div>
+<a href="#" id="banner1"><?php echo Html::img('banner1.jpg') ?></a>

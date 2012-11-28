@@ -58,7 +58,7 @@ class registroController extends Controller
 
         $form['clave_actual'] = $form['nueva_clave'] = $form['nueva_clave2'] = null; //limpiamos los campos
 
-        $this->form = $form;
+        $this->form = $form;$this->get("k2_debug")->dump('prueba',(string) false);
     }
 
     protected function loguear(Usuarios $usuario)
