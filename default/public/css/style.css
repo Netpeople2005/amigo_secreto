@@ -81,3 +81,13 @@ footer a {color:#ba1000}
 .info{color:#3a87ad;background-color:#F7F7F4}
 .success{color:#FFF;background-color:#3ABAE7}
 .warning{color:#9F6000;background-color:#FEEFB3}
+/************** ESTILOS DE FORMULARIOS *******************/
+.form [type=text],.form [type=password],.form select,.form textarea{border: 1px solid #E4E9E7}
+.form dd,.form dt{display: inline-block;float: left;line-height: 30px}
+.form dd{clear: left}
+.form label{display: inline-block;min-width: 150px;margin-right: 10px;text-align: right}
+.login{line-height: 30px;margin-bottom: 10px}
+.login label{min-width: 70px}
+.login [type=submit]{margin-left: 85px}
+.login select,.login [type=password], .login [type=submit]{width: 110px;line-height: 25px}
+.form [type=submit],.form [type=button],.form [type=reset]{padding: 3px 8px;line-height: 25px;cursor: pointer}

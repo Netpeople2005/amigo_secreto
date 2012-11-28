@@ -50,8 +50,11 @@ class Usuarios extends ActiveRecord implements UserInterface
 
     public function auth(UserInterface $user)
     {
-        var_dump($user);
-        return true;
+        if (null === $this->clave) {
+            return true;
+        } else {
+            return $this->clave === md5($user->clave);
+        }
     }
 
     public function getPassword()
@@ -71,9 +74,15 @@ class Usuarios extends ActiveRecord implements UserInterface
 
     protected function beforeSave()
     {
+        //si existe el campo clave actual, es porque estamos actualizando una clave previamente creada
+        if (isset($this->clave_actual) &&
+                $this->clave !== md5($this->clave_actual)) {
+            $this->addError('clave', "La clave Actual es Incorrecta...!!!");
+            return false;
+        }
         //cuando exista clave2 es porque se está actualizando la contraseña
-        if (isset($this->clave2)) {
-            $this->clave = $this->clave2 = md5($this->clave2);
+        if (isset($this->nueva_clave)) {
+            $this->clave = md5($this->nueva_clave);
         }
     }
 

@@ -1,9 +1,9 @@
 <header>
-    <div class="wrapper">
+    <div class="wrapper" style="visibility: hidden">
         <form id="search" action="" method="post">
             <div>
-                <a href="#" class="button" onClick="document.getElementById('search').submit()"><span><span>Search</span></span></a>
-                <input type="text" class="input">
+<!--                <a href="#" class="button" onClick="document.getElementById('search').submit()"><span><span>Search</span></span></a>-->
+<!--                <input type="text" class="input">-->
             </div>
         </form>
         <ul id="icons">
@@ -18,8 +18,8 @@
     <div class="wrapper">
         <div id="banner">
             <h1><a href="index.html" id="logo">Merry X-Mas</a></h1>
-            <span class="text">Create the Holiday Dreams <span>And Keep Your Spirits High!</span></span>
-            <a href="#" class="button"><span><span>Click Here</span></span></a>
+            <span class="text">Si no tienes un personaje Asignado</span></span>
+            <?php echo Html::link('registro', '<span><span>Has click Aqui</span>','class="button"') ?>
         </div>
     </div>
     <div id="menu">

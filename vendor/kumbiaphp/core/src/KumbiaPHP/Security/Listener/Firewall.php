@@ -2,6 +2,7 @@
 
 namespace KumbiaPHP\Security\Listener;
 
+use KumbiaPHP\Security\Security;
 use KumbiaPHP\Kernel\Config\Reader;
 use KumbiaPHP\Security\Event\Events;
 use KumbiaPHP\Security\Acl\AclManager;
@@ -44,7 +45,7 @@ class Firewall
         //verificamos la existencia del token en la session.
         //if (!$this->container->get('session')->has('token', 'security')) {
         if (!$this->container->get('security')->isLogged()) {
-            if ($url === Reader::get('security.security.login_url') 
+            if ($url === Reader::get('security.security.login_url')
                     && !$event->getRequest()->isMethod('post')) {
                 //si no existe el token y la url es la del logueo, nos vamos.
                 return;
@@ -59,7 +60,7 @@ class Firewall
                 $event->setResponse($this->loginCheck());
                 return;
             }
-        } elseif ($url === Reader::get('security.security.login_url') 
+        } elseif ($url === Reader::get('security.security.login_url')
                 || $url === '/_autenticate') {
             //si ya existe el token y estamos en la url del form de logueo, mandamos al target_login
             $event->stopPropagation();
@@ -121,7 +122,7 @@ class Firewall
      * @return array
      * @throws AuthException 
      */
-    protected function getProviderAndToken($provider,array $data = null)
+    protected function getProviderAndToken($provider, array $data = null)
     {
         if (0 === strpos($provider, '@')) {
             $provider = $this->container->get(str_replace('@', '', $provider));
@@ -178,7 +179,7 @@ class Firewall
                 return $this->container->get('router')->redirect(Reader::get('security.security.target_login'));
             }
         } catch (UserNotFoundException $e) {
-            $this->container->get('flash')->set("LOGIN_ERROR", "Usuario ó Contraseña Invalidos");
+            $this->container->get('session')->set(Security::LOGIN_ERROR, "Usuario ó Contraseña Invalidos");
         }
         return $this->showLogin();
     }

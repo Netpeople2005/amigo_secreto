@@ -97,10 +97,12 @@ class Form implements ArrayAccess, Validatable
                 $this->init();
                 $this->initExtrasFromModel($model);
             }
-        } else {
+        } elseif (is_string($model)) {
             $this->validationBuilder = new ValidationBuilder();
             $this->name = $model;
             $this->init();
+        } else {
+            throw new FormException("El valor para el argumento \$model debe ser una instancia de ActiveRecord ó un string, se envió: " . gettype($model));
         }
     }
 
@@ -183,7 +185,7 @@ class Form implements ArrayAccess, Validatable
         foreach ($this->fields as $field) {
             if ($field->getType() === 'hidden') {
                 $html .= $field->render() . PHP_EOL;
-                $this->removeField($field->getFieldName());//eliminadmos el campo del form, porque ya no se necesitará
+                $this->removeField($field->getFieldName()); //eliminadmos el campo del form, porque ya no se necesitará
             }
         }
         return $html;
@@ -300,7 +302,7 @@ class Form implements ArrayAccess, Validatable
             return NULL;
         }
     }
-    
+
     /**
      * Devuelve los elementos actuales del formulario
      * @return array 
