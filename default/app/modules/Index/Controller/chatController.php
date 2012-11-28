@@ -1,0 +1,53 @@
+<?php
+
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+/**
+ * Description of chatController
+ *
+ * @author ohernandez
+ */
+
+namespace Index\Controller;
+
+use Index\Model\Chat;
+use Index\Model\Usuarios;
+use KumbiaPHP\Kernel\Controller\Controller;
+
+class chatController extends Controller{
+    
+    
+    public function index_action() {
+        
+        $this->mensajes = array_reverse(Chat::getMensajes());
+        
+    }
+    
+    public function enviar_mensaje_action() {
+        
+        $nuevo_mensaje = $this->getRequest()->get('mensaje');
+        
+        $ultimo_id = $this->getRequest()->get('ultimo_id');
+        
+        $data = array(
+            'usuarios_id' => $this->get('security')->getToken('id'),
+            'texto' => $nuevo_mensaje,
+            'fecha' => date(DATE_W3C)
+        );
+        
+        $chat = new Chat();
+        
+        $chat->save($data);
+        
+        $mensajes = array_reverse(Chat::getMensajes($ultimo_id));
+        
+        return new \KumbiaPHP\Kernel\JsonResponse($mensajes);
+        
+    }
+    
+}
+
+?>
