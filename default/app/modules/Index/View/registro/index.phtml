@@ -1,1 +1,11 @@
 <?php \KumbiaPHP\View\View::content(true) ?>
+<?php $form['correo']['style'] = 'width: 200px' ?>
+<?php echo $form->open(array('class' => 'form')) ?>
+<dl>
+    <dd><label><?php echo $form['correo']['label'] ?></label></dd>
+    <dt><?php echo $form['correo'] ?></dt>
+    <dd><label></label></dd>
+    <dt><input type="submit" value="Registrarme" class="button" /></dt>
+</dl>
+
+<?php echo $form->close() ?>

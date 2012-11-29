@@ -25,31 +25,62 @@ class Usuarios extends ActiveRecord implements UserInterface
         return self::find();
     }
 
+    protected static function obtenerAQuienRegalar()
+    {
+
+        self::createQuery()
+                ->where('amigo_asignado = 0');
+
+        $numDisponibles = self::count();
+
+        self::createQuery()
+                ->where('amigo_asignado = 0')
+                ->limit(1)
+                ->offset(rand(0, $numDisponibles));
+
+        return self::find();
+    }
+
+    /**
+     * Crea el personaje en la bd y el asigna el personaje a quien le va a regalar
+     * @param Usuarios $usuario el usuario que se acaba de registrar
+     * @param Request $request petición actual
+     * @return Usuarios|false el usuario a quien se le va a regalar 
+     */
     public static function crearRegistro(Usuarios $usuario, Request $request)
     {
-        $usuario->begin();
-
         $usuario->en_uso = 1;
 
         if (!$usuario->save()) {
-            $usuario->rollback();
             return false;
         }
 
         $equipo = new EquiposRegistrados();
 
         if (!$equipo->guardar($request)) {
-            $usuario->rollback();
             return false;
         }
 
-        $usuario->commit();
+        if (!(($usr2 = self::obtenerAQuienRegalar()) instanceof Usuarios)) {
+            $usuario->addError(null, 'No quedan usuarios a quien regalarle');
+            return false;
+        }
 
-        return true;
+        $usr2->amigo_asignado = 1;
+
+        if (!$usr2->save()) {
+            return false;
+        }
+
+        return $usr2;
     }
 
     public function auth(UserInterface $user)
     {
+        if ($this->en_uso == 0) {
+            return false;
+        }
+
         if (null === $this->clave) {
             return true;
         } else {
