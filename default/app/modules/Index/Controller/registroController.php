@@ -50,6 +50,7 @@ class registroController extends Controller
                     $this->get('flash')->success("Tu usuario fue creado con exito");
                     $this->get('flash')->info("Se ha enviado un correo a <b>$correo</b> donde 
                             podrás ver el personaje que se te ha Asignado y a quien le regalas...!!!");
+                    $this->get('session')->set('correo_registro', $correo);
                     return $this->loguear($this->usuario);
                 }
             }
@@ -71,9 +72,9 @@ class registroController extends Controller
 
         if ($this->getRequest()->isMethod('post')) {
             if ($form->bindRequest($this->getRequest())->isValid()) {
-                
+
                 $this->usuario->begin();
-                
+
                 if ($this->usuario->save()) {
                     if ($this->enviarCorreoClave($this->usuario)) {
                         //pasamos la clave guardada al usuario de la sesión.
@@ -93,6 +94,11 @@ class registroController extends Controller
         }
 
         $form['clave_actual'] = $form['nueva_clave'] = $form['nueva_clave2'] = null; //limpiamos los campos
+        
+        if ($this->get('session')->has('correo_registro')){
+             $form['correo'] = $this->get('session')->get('correo_registro');
+             $this->get('session')->delete('correo_registro');
+        }
 
         $this->form = $form;
     }
