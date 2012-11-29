@@ -32,7 +32,7 @@ class Number extends Text
             'message' => $message,
             'min' => $min,
             'max' => $max,
-        ));
+                ), false);
         return $this->attrs(array(
                     'min' => $min,
                     'max' => $max,

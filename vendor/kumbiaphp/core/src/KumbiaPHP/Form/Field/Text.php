@@ -29,7 +29,7 @@ class Text extends AbstractField
             'message' => $message,
             'max' => $max,
             'min' => $min,
-        ));
+                ), false);
         return $this->attrs(array('maxlength' => $max));
     }
 
@@ -38,7 +38,7 @@ class Text extends AbstractField
         $this->validationBuilder->equalTo($this->getFieldName(), array(
             'message' => $message,
             'field' => $field,
-        ));
+                ), false);
         return $this;
     }
 

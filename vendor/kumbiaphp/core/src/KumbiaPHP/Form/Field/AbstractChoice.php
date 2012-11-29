@@ -77,7 +77,7 @@ abstract class AbstractChoice extends AbstractField implements ChoiceInterface
         $this->validationBuilder->inList($this->getFieldName(), array(
             'message' => $message,
             'list' => $this->getOptions()
-        ));
+                ), false);
         return $this;
     }
 

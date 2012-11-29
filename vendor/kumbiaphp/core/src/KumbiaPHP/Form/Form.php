@@ -32,14 +32,14 @@ class Form implements ArrayAccess, Validatable
     /**
      * @var ActiveRecord;
      */
-    protected $model = NULL;
+    protected $model;
 
     /**
      * Url a la que apuntar� el Form
      *
      * @var string 
      */
-    protected $action = NULL;
+    protected $action;
 
     /**
      * Método a usar para el envio del form
@@ -83,7 +83,7 @@ class Form implements ArrayAccess, Validatable
      * @param ActiveRecord|string $model modelo AR ó nombre del form
      * @param boolean $createFields indica si se crearan los campos a partir del modelo.
      */
-    final public function __construct($model = NULL, $createFields = FALSE)
+    final public function __construct($model, $createFields = false)
     {
         if ($model instanceof ActiveRecord) {
             if (!($this->validationBuilder = $model->getValidations()) instanceof ValidationBuilder) {
@@ -292,14 +292,14 @@ class Form implements ArrayAccess, Validatable
      * @param string $element Nombre del campo a obtener.
      * 
      * @return Field objeto que se encuentra en el form  � 
-     * NULL si el elemento no existe.
+     * null si el elemento no existe.
      */
     public function getField($element)
     {
         if (array_key_exists($element, $this->fields)) {
             return $this->fields[$element];
         } else {
-            return NULL;
+            return null;
         }
     }
 
@@ -373,13 +373,18 @@ class Form implements ArrayAccess, Validatable
      */
     public function isValid()
     {
-        if ($this->model instanceof ActiveRecord
-                && isset($this->model->{$this->model->metadata()->getPK()})
-                && $this->model->exists()) {
-            return Kernel::get('validator')->validateOnUpdate($this);
-        } else {
-            return Kernel::get('validator')->validate($this);
+        if ($this->model instanceof ActiveRecord) {
+            //indicamos que el modelo ya ha sido validado, para
+            //que al guardar el modelo y se llame nuevamente al validador
+            //el metodo getValidations() de la clase ActiveRecord devuelva
+            //un ValidationBuilder Vacio.
+            $this->model->setValidated(true);            
+            if (isset($this->model->{$this->model->metadata()->getPK()})
+                    && $this->model->exists()) {
+                return Kernel::get('validator')->validateOnUpdate($this);
+            }
         }
+        return Kernel::get('validator')->validate($this);
     }
 
     /**
@@ -394,12 +399,12 @@ class Form implements ArrayAccess, Validatable
         /* @var $field Field */
         if ($this->model instanceof ActiveRecord) {
             foreach ($this->fields as $fieldName => $field) {
-                $field->setValue(isset($data[$fieldName]) ? $data[$fieldName] : NULL);
+                $field->setValue(isset($data[$fieldName]) ? $data[$fieldName] : null);
                 $this->model->{$fieldName} = $field->getValue();
             }
         } else {
             foreach ($this->fields as $fieldName => $field) {
-                $field->setValue(isset($data[$fieldName]) ? $data[$fieldName] : NULL);
+                $field->setValue(isset($data[$fieldName]) ? $data[$fieldName] : null);
             }
         }
         return $this;
@@ -450,7 +455,7 @@ class Form implements ArrayAccess, Validatable
      * Verifica la existencia de un campo en el formulario.
      * 
      * @param string $offset nombre del campo a verificar
-     * @return boolean devuelve TRUE si el campo existe. 
+     * @return boolean devuelve true si el campo existe. 
      */
     public function offsetExists($offset)
     {
@@ -463,7 +468,7 @@ class Form implements ArrayAccess, Validatable
      * @param string $offset nombre del campo a obtener
      * 
      * @return Field|array objeto que se encuentra en el form  � 
-     * NULL si el elemento no existe.
+     * null si el elemento no existe.
      */
     public function offsetGet($offset)
     {
@@ -519,7 +524,7 @@ class Form implements ArrayAccess, Validatable
      */
     protected function attrsToString()
     {
-        $string = NULL;
+        $string = null;
         foreach ($this->prepareAttrs() as $attr => $value) {
             $string .= "$attr=\"$value\" ";
         }
@@ -560,11 +565,6 @@ class Form implements ArrayAccess, Validatable
                     if (method_exists($field, 'maxLength')) {//se debe verificar si el objeto Field permite esta validación.
                         $field->maxLength($attribute->length);
                     }
-                }
-                if (true === $attribute->unique) {
-                    $this->validationBuilder->add(ValidationAR::UNIQUE, $fieldName, array(
-                        'message' => "El Valor especificado para el Campo {$field->getLabel()} ya existe en el Sistema"
-                    ));
                 }
                 if (null !== $attribute->default && null === $field->getValue()) {
                     $field->setValue($attribute->default);

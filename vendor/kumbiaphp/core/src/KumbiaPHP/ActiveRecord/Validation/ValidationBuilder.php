@@ -16,19 +16,19 @@ class ValidationBuilder extends BaseBuilder
     const UNIQUE = 'KumbiaPHP\\ActiveRecord\\Validation\\Validators\\Unique';
 
     //acá irán las validaciones del AR
-    public function defaultField($field, array $params = NULL)
+    public function defaultField($field, array $params = NULL, $replace = true)
     {
-        return $this->add(self::DEFAULT_FIELD, $field, $params);
+        return $this->set(self::DEFAULT_FIELD, $field, $params, $replace);
     }
 
-    public function unique($field, array $params = NULL)
+    public function unique($field, array $params = NULL, $replace = true)
     {
-        return $this->add(self::UNIQUE, $field, $params);
+        return $this->set(self::UNIQUE, $field, $params, $replace);
     }
 
-    public function primary($field, array $params = NULL)
+    public function primary($field, array $params = NULL, $replace = true)
     {
-        return $this->add(self::PRIMARY, $field, $params);
+        return $this->set(self::PRIMARY, $field, $params, $replace);
     }
 
 }

@@ -18,62 +18,62 @@ class ValidationBuilder implements \Serializable
 
     protected $valitations = array();
 
-    public function add($type, $field, array $params = array())
+    public function set($type, $field, array $params = array(), $replace = true)
     {
-        if (!$this->has($type, $field)) {
+        if ($replace || !$this->has($type, $field)) {
             $this->valitations[$type][$field] = $params;
         }
         return $this;
     }
 
-    public function notNull($field, array $params = array())
+    public function notNull($field, array $params = array(), $replace = true)
     {
-        return $this->add(self::NOT_NULL, $field, $params);
+        return $this->set(self::NOT_NULL, $field, $params, $replace);
     }
 
-    public function int($field, array $params = array())
+    public function int($field, array $params = array(), $replace = true)
     {
-        return $this->add(self::INT, $field, $params);
+        return $this->set(self::INT, $field, $params, $replace);
     }
 
-    public function maxLength($field, array $params = array())
+    public function maxLength($field, array $params = array(), $replace = true)
     {
-        return $this->add(self::MAX_LENGTH, $field, $params);
+        return $this->set(self::MAX_LENGTH, $field, $params, $replace);
     }
 
-    public function minLength($field, array $params = array())
+    public function minLength($field, array $params = array(), $replace = true)
     {
-        return $this->add(self::MIN_LENGTH, $field, $params);
+        return $this->set(self::MIN_LENGTH, $field, $params, $replace);
     }
 
-    public function lengthBetween($field, array $params = array())
+    public function lengthBetween($field, array $params = array(), $replace = true)
     {
-        return $this->add(self::LENGTH_BETWEEN, $field, $params);
+        return $this->set(self::LENGTH_BETWEEN, $field, $params, $replace);
     }
 
-    public function inList($field, array $params = array())
+    public function inList($field, array $params = array(), $replace = true)
     {
-        return $this->add(self::IN_LIST, $field, $params);
+        return $this->set(self::IN_LIST, $field, $params, $replace);
     }
 
-    public function date($field, array $params = array())
+    public function date($field, array $params = array(), $replace = true)
     {
-        return $this->add(self::DATE, $field, $params);
+        return $this->set(self::DATE, $field, $params, $replace);
     }
 
-    public function range($field, array $params = array())
+    public function range($field, array $params = array(), $replace = true)
     {
-        return $this->add(self::RANGE, $field, $params);
+        return $this->set(self::RANGE, $field, $params, $replace);
     }
 
-    public function url($field, array $params = array())
+    public function url($field, array $params = array(), $replace = true)
     {
-        return $this->add(self::URL, $field, $params);
+        return $this->set(self::URL, $field, $params, $replace);
     }
 
-    public function equalTo($field, array $params = array())
+    public function equalTo($field, array $params = array(), $replace = true)
     {
-        return $this->add(self::EQUAL_TO, $field, $params);
+        return $this->set(self::EQUAL_TO, $field, $params, $replace);
     }
 
     public function has($type, $field)
@@ -108,7 +108,7 @@ class ValidationBuilder implements \Serializable
 
     public function unserialize($serialized)
     {
-        $this->valitations = array();        
+        $this->valitations = array();
     }
 
 }
