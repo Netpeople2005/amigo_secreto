@@ -1,6 +1,8 @@
 <?php \KumbiaPHP\View\View::content(true) ?>
 <?php echo $form->open(array('class' =>'form')) ?>
 <dl>
+    <dd><label><?php echo $form['correo']['label'] ?></label></dd>
+    <dt><?php echo $form['correo'] ?></dt>
     <?php if (isset($form['clave_actual'])): ?>
         <dd><label><?php echo $form['clave_actual']['label'] ?></label></dd>
         <dt><?php echo $form['clave_actual'] ?></dt>

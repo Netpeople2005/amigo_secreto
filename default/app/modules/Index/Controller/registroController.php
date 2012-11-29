@@ -71,16 +71,22 @@ class registroController extends Controller
 
         if ($this->getRequest()->isMethod('post')) {
             if ($form->bindRequest($this->getRequest())->isValid()) {
+                
+                $this->usuario->begin();
+                
                 if ($this->usuario->save()) {
-                    //pasamos la clave guardada al usuario de la sesión.
-                    $this->get("security")->getToken()
-                                    ->getUser()->clave = $this->usuario->clave;
-                    $this->get('flash')->success('La contraseña fué actualizada con exito...!!!');
-                    return $this->getRouter()->redirect('index/inicio');
-                } else {
-                    $this->get('flash')->error('No se pudo actualizar la contraseña...!!!');
-                    $this->get('flash')->error($this->usuario->getErrors());
+                    if ($this->enviarCorreoClave($this->usuario)) {
+                        //pasamos la clave guardada al usuario de la sesión.
+                        $this->get("security")->getToken()
+                                        ->getUser()->clave = $this->usuario->clave;
+                        $this->get('flash')->success('La contraseña fué actualizada con exito...!!!');
+                        $this->usuario->commit();
+                        return $this->getRouter()->redirect('index/inicio');
+                    }
                 }
+                $this->usuario->rollback();
+                $this->get('flash')->error('No se pudo actualizar la contraseña...!!!');
+                $this->get('flash')->error($this->usuario->getErrors());
             } else {
                 $this->get('flash')->error($form->getErrors());
             }
@@ -89,7 +95,6 @@ class registroController extends Controller
         $form['clave_actual'] = $form['nueva_clave'] = $form['nueva_clave2'] = null; //limpiamos los campos
 
         $this->form = $form;
-        $this->get("k2_debug")->dump('prueba', (string) false);
     }
 
     protected function loguear(Usuarios $usuario)
@@ -111,6 +116,31 @@ class registroController extends Controller
                 ->setSubject("Registro en Super Amigo Secreto")
                 ->setBody($mensaje)
                 ->addRecipient($correo);
+
+        try {
+            $mail->send();
+            return true;
+        } catch (\K2\Mail\Exception\MailException $e) {
+            $this->get('flash')->error("No se Pudo enviar el correo");
+            $this->get('flash')->error($e->getMessage());
+            return false;
+        }
+    }
+
+    protected function enviarCorreoClave(Usuarios $usr)
+    {
+        $mensaje = $this->get('view')->render(array(
+            'view' => 'clave',
+            'response' => 'email',
+            'params' => array(
+                'usuario' => $usr
+            ),
+                ));
+
+        $mail = $this->get('k2_mailer')
+                ->setSubject("Actualizacion de Contraseña")
+                ->setBody($mensaje)
+                ->addRecipient($usr->correo);
 
         try {
             $mail->send();
