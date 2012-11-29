@@ -187,7 +187,7 @@ abstract class AbstractField implements ArrayAccess
         if ($required) {
             $this->validationBuilder->notNull($this->getFieldName(), array(
                 'message' => $message
-            ));
+                    ), false);
             return $this->attrs(array('required' => 'required'));
         } else {
             $this->validationBuilder->remove('NotNull', $this->getFieldName());

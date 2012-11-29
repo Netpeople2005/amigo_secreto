@@ -29,7 +29,7 @@ class Date extends Text
         $this->validationBuilder->date($this->getFieldName(), array(
             'message' => $message,
             'format' => $format,
-        ));
+        ), false);
         return $this;
     }
 

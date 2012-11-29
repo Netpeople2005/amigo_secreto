@@ -82,7 +82,7 @@ footer a {color:#ba1000}
 .success{color:#FFF;background-color:#3ABAE7}
 .warning{color:#9F6000;background-color:#FEEFB3}
 /************** ESTILOS DE FORMULARIOS *******************/
-.form [type=text],.form [type=password],.form select,.form textarea{border: 1px solid #E4E9E7}
+.form [type=text],.form [type=password],.form select,.form textarea,.form [type=email]{border: 1px solid #E4E9E7}
 .form dd,.form dt{display: inline-block;float: left;line-height: 30px}
 .form dd{clear: left}
 .form label{display: inline-block;min-width: 150px;margin-right: 10px;text-align: right}

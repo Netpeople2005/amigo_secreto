@@ -46,9 +46,9 @@ abstract class ValidatorBase
      * @param boolean $update indica si es operacion de actualizacion
      * @return boolean
      */
-    public static function validate(Validatable $object, $column, $params = NULL, $update = FALSE)
+    public static function validate(Validatable $object, $column, $params = null, $update = false)
     {
-        return TRUE;
+        return true;
     }
 
     public static function setContainer(ContainerInterface $container)
@@ -63,17 +63,21 @@ abstract class ValidatorBase
 
     protected static function getValue(Validatable $object, $column)
     {
-        if ($object instanceof \KumbiaPHP\Form\Form) {
-            if (!$object->getData() instanceof \KumbiaPHP\ActiveRecord\ActiveRecord) {
-                if (isset($object[$column])) {
-                    return $object[$column]->getValue();
-                } else {
-                    return NULL;
-                }
+        if ($object instanceof \KumbiaPHP\Form\Form) {//para trabajar la Lib Form de K2
+            if (isset($object[$column])) {
+                return $object[$column]->getValue();
+            } elseif (!is_object($object = $object->getData())) {
+                return null;
             }
-            $object = $object->getData();
         }
-        return isset($object->$column) ? $object->$column : NULL;
+        $reflection = new \ReflectionObject($object);
+        if ($reflection->hasProperty($column)) {
+            $attribute = $reflection->getProperty($column);
+            $attribute->setAccessible(true);
+            return $attribute->getValue($object);
+        } else {
+            return null;
+        }
     }
 
     protected static function createErrorMessage(Validatable $object, $column, $params)
@@ -85,7 +89,7 @@ abstract class ValidatorBase
                     $params['message'] = self::$container->get('translator')->trans($params['message']);
                 }
                 foreach ($matches['item'] as $item) {
-                    if ('label' === $item && $object instanceof \KumbiaPHP\Form\Form) {
+                    if ('label' === $item && $object instanceof \KumbiaPHP\Form\Form) {//para trabajar la Lib Form de K2
                         $value = $object[$column]['label'];
                     } else {
                         if (!isset($params[$item])) {
@@ -97,7 +101,7 @@ abstract class ValidatorBase
                 }
             }
         } else {
-            $params['message'] = NULL;
+            $params['message'] = null;
         }
 
         self::$lastError = $params['message'];

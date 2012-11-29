@@ -9,6 +9,10 @@ class ClavesForm extends Form
 
     protected function init()
     {
+        $this->add('correo', 'email')
+                ->setLabel('Correo Electronico')
+                ->required();
+        
         $this->add('nueva_clave', 'password')
                 ->setLabel('Contraseña')
                 ->required();

@@ -92,7 +92,7 @@ class View
 
             ob_start();
             if (null !== $this->response) {
-                $this->view .= '.' . $this->response; //si se estableció un response, lo concatenamos con el view
+                $this->view .= '.' . $this->response;//si se estableció un response, lo concatenamos con el view
             }
             require_once $this->findView($this->view, $scaffold);
             self::$content = ob_get_clean();
