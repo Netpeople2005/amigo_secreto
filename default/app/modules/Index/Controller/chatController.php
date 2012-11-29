@@ -52,6 +52,16 @@ class chatController extends Controller{
         
     }
     
+    public function actualizar_action() {
+        
+        $ultimo_id = $this->getRequest()->get('ultimo_id');
+        
+        $mensajes = array_reverse(Chat::getMensajes($ultimo_id));
+        
+        return new \KumbiaPHP\Kernel\JsonResponse($mensajes);
+        
+    }
+    
 }
 
 ?>
