@@ -87,7 +87,7 @@ class Form implements ArrayAccess, Validatable
     {
         if ($model instanceof ActiveRecord) {
             if (!($this->validationBuilder = $model->getValidations()) instanceof ValidationBuilder) {
-                throw new \LogicException(sprintf("El método\"validations\" de la clase \"%s\" debe devolver un objeto ValidationBuilder", get_class($model)));
+                throw new \LogicException(sprintf("El método\"getValidations\" de la clase \"%s\" debe devolver un objeto ValidationBuilder", get_class($model)));
             }
             $this->name = strtolower(basename(get_class($model)));
             $this->model = $model;

@@ -64,16 +64,19 @@ abstract class ValidatorBase
     protected static function getValue(Validatable $object, $column)
     {
         if ($object instanceof \KumbiaPHP\Form\Form) {//para trabajar la Lib Form de K2
-            return isset($object[$column]) ? $object[$column]->getValue() : null;
-        } else {
-            $reflection = new \ReflectionObject($object);
-            if ($reflection->hasProperty($column)) {
-                $attribute = $reflection->getProperty($column);
-                $attribute->setAccessible(true);
-                return $attribute->getValue($object);
-            } else {
+            if (isset($object[$column])) {
+                return $object[$column]->getValue();
+            } elseif (!is_object($object = $object->getData())) {
                 return null;
             }
+        }
+        $reflection = new \ReflectionObject($object);
+        if ($reflection->hasProperty($column)) {
+            $attribute = $reflection->getProperty($column);
+            $attribute->setAccessible(true);
+            return $attribute->getValue($object);
+        } else {
+            return null;
         }
     }
 
