@@ -2,8 +2,8 @@
 
 define('START_TIME', microtime(1));
 
-//require_once '../app/kernel.min.php';
-require_once '../app/AppKernel.php';
+//require_once __DIR__ . '/../app/kernel.min.php';
+require_once __DIR__ . '/../app/AppKernel.php';
 
 use KumbiaPHP\Kernel\Request;
 use KumbiaPHP\Cache\AppCache;

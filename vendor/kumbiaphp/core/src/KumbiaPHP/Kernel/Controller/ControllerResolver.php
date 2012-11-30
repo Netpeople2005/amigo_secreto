@@ -82,15 +82,6 @@ class ControllerResolver
         $controllerClass = str_replace('/', '\\', $this->module) . "\\Controller\\{$this->controllerName}";
 
         try {
-
-            $controllerFile = "{$app->getModules($this->module)}{$controllerClass}.php";
-
-            if (!is_file($controllerFile)) {
-                throw new NotFoundException();
-            }
-
-            require_once $controllerFile;
-
             $reflectionClass = new ReflectionClass($controllerClass);
             if ($reflectionClass->getShortName() !== $this->controllerName) {
                 throw new NotFoundException();
