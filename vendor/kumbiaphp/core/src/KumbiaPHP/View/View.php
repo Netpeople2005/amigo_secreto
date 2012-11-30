@@ -94,13 +94,13 @@ class View
             if (null !== $this->response) {
                 $this->view .= '.' . $this->response;//si se estableció un response, lo concatenamos con el view
             }
-            require_once $this->findView($this->view, $scaffold);
+            include $this->findView($this->view, $scaffold);
             self::$content = ob_get_clean();
         }
         if ($this->template !== null) {
 
             ob_start();
-            require_once $this->findTemplate($this->template);
+            include $this->findTemplate($this->template);
             self::$content = ob_get_clean();
         }
 
