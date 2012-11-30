@@ -22,14 +22,29 @@
 <div id="chatbox">
     <?php foreach ($mensajes as $value) : ?>
 
-        <p><span><?php echo $value['nombre'] . ' dice:' ?><br></span>
-            <?php echo $value['mensaje'] ?></p>
+        <p>
+        <table>
+            <tr>
+                <td rowspan="2">
+                    <?php echo Html::img($value['imagen'], 'Foto de ' . $value['nombre'], array('width' => '40px', 'height' => '48px')) ?>
+                </td>
+                <td style=" padding-left: 7px">
+            <b><?php echo $value['nombre'] . ' dice:' ?></b>
+                </td>
+            </tr>
+            <tr>
+            <td style=" padding-left: 7px">
+            <?php echo $value['mensaje'] ?>
+            </td>
+            </tr>
+        </table>
+    </p>
 
-    <?php endforeach; ?>
+<?php endforeach; ?>
 </div>
 <div>
-    <?php echo Form::open('chat/enviar_mensaje', 'post', array('id' => 'chatform'))?>
-    <?php echo Form::hidden('ultimo_id', null, $ultimo_id)?>
+    <?php echo Form::open('chat/enviar_mensaje', 'post', array('id' => 'chatform')) ?>
+    <?php echo Form::hidden('ultimo_id', null, $ultimo_id) ?>
     <textarea id="chatinput" name="mensaje"></textarea>
-    <?php echo Form::close()?>
+    <?php echo Form::close() ?>
 </div>
