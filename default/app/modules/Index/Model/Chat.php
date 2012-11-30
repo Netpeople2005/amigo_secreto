@@ -11,7 +11,7 @@ class Chat extends ActiveRecord {
         if (!is_null($ultimo_id)) {
 
             self::createQuery()
-                    ->select('usuarios.personaje AS nombre, chat.texto AS mensaje, chat.id AS mensaje_id')
+                    ->select('usuarios.personaje AS nombre, usuarios.imagen as imagen, chat.texto AS mensaje, chat.id AS mensaje_id')
                     ->join('usuarios', 'usuarios.id = chat.usuarios_id')
                     ->where('chat.id > :ultimo_id')
                     ->bindValue('ultimo_id', $ultimo_id)
@@ -19,7 +19,7 @@ class Chat extends ActiveRecord {
         } else {
 
             self::createQuery()
-                    ->select('usuarios.personaje AS nombre, chat.texto AS mensaje, chat.id AS mensaje_id')
+                    ->select('usuarios.personaje AS nombre, usuarios.imagen as imagen, chat.texto AS mensaje, chat.id AS mensaje_id')
                     ->join('usuarios', 'usuarios.id = chat.usuarios_id')
                     ->order('chat.id DESC');
         }
