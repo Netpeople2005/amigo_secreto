@@ -17,7 +17,7 @@ class AppKernel extends Kernel
         $modules = array(
             'KumbiaPHP' => __DIR__ . '/../../vendor/kumbiaphp/core/src/',
             'Index' => __DIR__ . '/modules/',
-            'K2\Mail' => __DIR__ . '/../../vendor/',
+            'K2/Mail' => __DIR__ . '/../../vendor/',
         );
 
         if (!$this->isProduction()) {
