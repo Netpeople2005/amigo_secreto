@@ -25,7 +25,7 @@ class Usuarios extends ActiveRecord implements UserInterface
         return self::find();
     }
 
-    protected static function obtenerAQuienRegalar()
+    protected static function obtenerAQuienRegalar(Usuarios $quienRegala)
     {
 
         self::createQuery()
@@ -35,8 +35,10 @@ class Usuarios extends ActiveRecord implements UserInterface
 
         self::createQuery()
                 ->where('amigo_asignado = 0')
+                ->where('id != :id')
                 ->limit(1)
-                ->offset(rand(0, $numDisponibles));
+                ->offset(rand(0, $numDisponibles))
+                ->bindValue('id', $quienRegala->id);
 
         return self::find();
     }
@@ -61,7 +63,7 @@ class Usuarios extends ActiveRecord implements UserInterface
             return false;
         }
 
-        if (!(($usr2 = self::obtenerAQuienRegalar()) instanceof Usuarios)) {
+        if (!(($usr2 = self::obtenerAQuienRegalar($usuario)) instanceof Usuarios)) {
             $usuario->addError(null, 'No quedan usuarios a quien regalarle');
             return false;
         }
