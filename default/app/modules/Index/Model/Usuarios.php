@@ -20,7 +20,7 @@ class Usuarios extends ActiveRecord implements UserInterface
         self::createQuery()
                 ->where('en_uso = 0')
                 ->limit(1)
-                ->offset(rand(0, $numDisponibles));
+                ->offset(rand(0, $numDisponibles - 1));
 
         return self::find();
     }
@@ -37,7 +37,7 @@ class Usuarios extends ActiveRecord implements UserInterface
                 ->where('amigo_asignado = 0')
                 ->where('id != :id')
                 ->limit(1)
-                ->offset(rand(0, $numDisponibles))
+                ->offset(rand(0, $numDisponibles - 1))
                 ->bindValue('id', $quienRegala->id);
 
         return self::find();
