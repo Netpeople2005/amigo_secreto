@@ -33,7 +33,25 @@ class Usuarios extends ActiveRecord implements UserInterface
 
     protected static function obtenerAQuienRegalar(Usuarios $quienRegala)
     {
+        self::createQuery()
+                ->where('amigo_asignado = 0')
+                ->where('en_uso = :estado')
+                ->bindValue('estado', self::DISPONIBLE);
 
+        //si hay personajes que no han sido asignados. usamos estos.
+        if (count($numDisponibles = self::count())) {
+
+            self::createQuery()
+                    ->where('amigo_asignado = 0')
+                    ->where('id != :id')
+                    ->limit(1)
+                    ->offset(rand(0, $numDisponibles - 1))
+                    ->bindValue('id', $quienRegala->id);
+
+            return self::find();
+        }
+
+        //si todos los personajes ya fueron asignados
         self::createQuery()
                 ->where('amigo_asignado = 0');
 
@@ -90,6 +108,8 @@ class Usuarios extends ActiveRecord implements UserInterface
      */
     public static function postRegistro(Usuarios $usuario)
     {
+        $usuario = self::findByPK((int) $usuario->id);
+
         $usuario->en_uso = self::ASIGNADO;
 
         if (!$usuario->save()) {
@@ -101,15 +121,25 @@ class Usuarios extends ActiveRecord implements UserInterface
 
     public static function cancelarRegistro(Usuarios $usuario, Usuarios $aQuienRegala, Request $request)
     {
+        $usuario->begin();
+
         $usuario->en_uso = self::DISPONIBLE;
 
-        $usuario->save();
-        
+        if (!$usuario->save()) {
+            $usuario->rollback();
+            return false;
+        }
+
         $aQuienRegala->amigo_asignado = 0;
-        
-        $aQuienRegala->save();
-        
+
+        if (!$aQuienRegala->save()) {
+            $usuario->rollback();
+            return false;
+        }
+
         EquiposRegistrados::eliminar($request);
+
+        $usuario->commit();
 
         return true;
     }
