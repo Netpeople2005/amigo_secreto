@@ -169,7 +169,7 @@ class Firewall
             $event = new SecurityEvent($this->container->get('request')
                             , $this->container->get('security'));
 
-            $this->container->get('dispatcher')->dispatch(Events::LOGIN, $event);
+            $this->container->get('event.dispatcher')->dispatch(Events::LOGIN, $event);
 
             if ($event->hasResponse()) {//si se estableció una respuesta
                 //eliminamos la sesión por si se creó
@@ -220,7 +220,7 @@ class Firewall
         $event = new SecurityEvent($this->container->get('request')
                         , $this->container->get('security'));
 
-        $this->container->get('dispatcher')->dispatch(Events::LOGOUT, $event);
+        $this->container->get('event.dispatcher')->dispatch(Events::LOGOUT, $event);
 
         //eliminamos la sesión
         $this->container->get('session')->delete(null, 'security');
