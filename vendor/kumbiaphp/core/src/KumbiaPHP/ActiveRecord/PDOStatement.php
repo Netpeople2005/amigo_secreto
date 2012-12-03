@@ -55,4 +55,4 @@ class PDOStatement extends Base
 
 }
 
-PDOStatement::setDispatcher(Kernel::get('dispatcher'));
+PDOStatement::setDispatcher(Kernel::get('event.dispatcher'));

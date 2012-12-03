@@ -29,6 +29,12 @@ class EventDispatcher implements EventDispatcherInterface
     protected $container;
 
     /**
+     * Arreglo con los servicios ya ordenados por prioridad.
+     * @var array 
+     */
+    protected $sorted = array();
+
+    /**
      * Constructor de la clase.
      * @param ContainerInterface $container 
      */
@@ -39,47 +45,82 @@ class EventDispatcher implements EventDispatcherInterface
 
     public function dispatch($eventName, Event $event)
     {
-        if (!array_key_exists($eventName, $this->listeners)) {
+        if (!$this->hasListeners($eventName)) {
             return;
         }
-        if (is_array($this->listeners[$eventName]) && count($this->listeners[$eventName])) {
-            foreach ($this->listeners[$eventName] as $listener) {
+        foreach ($this->getListeners($eventName) as $listener) {
+            call_user_func($listener, $event);
+            if ($event->isPropagationStopped()) {
+                return;
+            }
+        }
+    }
+
+    public function addListener($eventName, $listener, $priority = 0)
+    {
+        $this->listeners[$eventName][$priority][] = $listener;
+        unset($this->sorted[$eventName]);
+    }
+
+    public function hasListeners($eventName)
+    {
+        return isset($this->listeners[$eventName]);
+    }
+
+    public function getListeners($eventName)
+    {
+        if (isset($this->sorted[$eventName])) {
+            //si ya estan ordenados, solo devolvemos los listeners.
+            return $this->sorted[$eventName];
+        }
+
+        //si no estan en el arreglo $sorted, lo creamos.
+        $this->sortListeners($eventName);
+
+        foreach ($this->sorted[$eventName] as $index => $listener) {
+            if (!is_callable($listener)) {
+                //si listener no es un funcion ó un objeto con un metodo que se pueda llamar
+                //es porque estamos solicitando un servicio.
+                //entonces convertirmos el listener en un objeto con un metodo que se
+                //puedan llamar.
                 $service = $this->container->get($listener[0]);
-                $service->{$listener[1]}($event);
-                if ($event->isPropagationStopped()) {
+                $this->sorted[$eventName][$index][0] = $service;
+            }
+        }
+
+        return $this->sorted[$eventName];
+    }
+
+    public function removeListener($eventName, $listener)
+    {
+        if ($this->hasListeners($eventName)) {
+            foreach ($this->listeners[$eventName] as $priority => $listeners) {
+                if (false !== ($key = array_search($listener, $listeners))) {
+                    unset($this->listeners[$eventName][$priority][$key]);
+                    unset($this->sorted[$eventName]);
                     return;
                 }
             }
         }
     }
 
-    public function addListener($eventName, $listener)
-    {
-        if (!$this->hasListener($eventName, $listener)) {
-            $this->listeners[$eventName][] = $listener;
-        }
-    }
-
-    public function hasListener($eventName, $listener)
+    protected function sortListeners($eventName)
     {
         if (isset($this->listeners[$eventName])) {
-            return in_array($listener, $this->listeners[$eventName]);
-        } else {
-            return FALSE;
+            krsort($this->listeners[$eventName]);
         }
+        //unimos todos los listener que estan en prioridades diferentes.
+        $this->sorted[$eventName] = call_user_func_array('array_merge', $this->listeners[$eventName]);
     }
 
-    public function removeListener($eventName, $listener)
+    public function addSubscriber(EventSubscriberInterface $subscriber)
     {
-        if ($this->hasListener($eventName, $listener)) {
-            do {
-                if ($listener === current($this->listeners[$eventName])) {
-                    $key = key(current($this->listeners[$eventName]));
-                    break;
-                }
-            } while (next($this->listeners[$eventName]));
+        foreach ($subscriber->getSubscribedEvents() as $method => $params) {
+            if (is_array($params)) {//si es arreglo es porque pasamos la prioridad
+            } else {
+                $this->addListener($eventName, $listener);
+            }
         }
-        unset($this->listeners[$eventName][$key]);
     }
 
 }

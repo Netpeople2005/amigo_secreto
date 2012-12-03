@@ -26,13 +26,15 @@ class Reader
                 $parameter->setDbName(str_replace(array('\\', '/'), DIRECTORY_SEPARATOR, $dbName));
             }
         }
-        if (Kernel::getParam('config.database')) {
+        
+        $config = Kernel::getParam('config');
+        
+        if (isset($config['database'])) {
             //lo seteamos solo si se ha definido.
-            $database = Kernel::getParam('config.database');
-            if (!Config::has($database)) {
-                throw new \LogicException("El valor database=$database del config.ini no concuerda con ninguna sección del databases.ini");
+            if (!Config::has($config['database'])) {
+                throw new \LogicException("El valor database={$config['database']} del config.ini no concuerda con ninguna sección del databases.ini");
             }
-            Config::setDefaultId($database);
+            Config::setDefaultId($config['database']);
         }
     }
 

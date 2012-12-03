@@ -180,7 +180,7 @@ abstract class AbstractField implements ArrayAccess
      * Agrega un validación de campo requerido, es decir que no puede estar vacio.
      * 
      * @param string $message Mensaje a mostrar en caso de error al validar.
-     * @return Field 
+     * @return AbstractField 
      */
     public function required($required = TRUE, $message = 'El campo {label} es requerido')
     {
@@ -222,16 +222,27 @@ abstract class AbstractField implements ArrayAccess
      * @param array $attrs arreglo con claves => valor donde la clave es el nombre
      * del atributo y el value su contenido ó valor.
      * 
-     * @return Field 
+     * @return AbstractField 
      */
     public function attrs(array $attrs)
     {
         $this->attrs = array_merge($this->attrs, $attrs);
         if (array_key_exists('value', $attrs)) {
-            //el valor siempre debe quedar en la propiedad $_value de la clase
+            //el valor siempre debe quedar en la propiedad $value de la clase
             $this->setValue(htmlspecialchars_decode($attrs['value'], ENT_COMPAT));
         }
         return $this;
+    }
+
+    /**
+     * stablece un atributo html para el campo.
+     * @param string $attr nombre del atributo
+     * @param string $value valor del atributo
+     * @return AbstractField 
+     */
+    public function attr($attr, $value)
+    {
+        return $this->attrs(array($attr => $value));
     }
 
     /**
@@ -255,7 +266,7 @@ abstract class AbstractField implements ArrayAccess
             'name' => $this->formName . '[' . $this->getFieldName() . ']',
             'type' => $this->getType(),
         ));
-        if (!is_array($this->getValue())) {
+        if (!is_array($this->getValue()) && !\is_object($this->getValue())) {
             $this->attrs(array(
                 'value' => htmlspecialchars($this->getValue(), ENT_COMPAT),
             ));

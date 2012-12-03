@@ -1,5 +1,4 @@
 <?php
-
 /**
  * KumbiaPHP web & app Framework
  *
@@ -69,28 +68,28 @@ class Model implements \Serializable
      *
      * @var strings
      */
-    protected $_connection = NULL;
+    protected $connection = NULL;
 
     /**
      * Tabla origen de datos
      *
      * @var string
      */
-    protected static $_table = NULL;
+    protected $table = NULL;
 
     /**
      * Esquema de datos
      *
      * @var string
      */
-    protected $_schema = NULL;
+    protected $schema = NULL;
 
     /**
      * Objeto DbQuery para implementar chain
      *
      * @var Obj
      */
-    protected static $dbQuery = NULL;
+    private static $dbQuery = NULL;
 
     /**
      * ResulSet PDOStatement
@@ -111,13 +110,13 @@ class Model implements \Serializable
      *
      * @var array
      */
-    private static $_metadata = array();
+    private static $metadata = array();
 
     /**
      *
      * @var array
      */
-    protected static $_relations = array();
+    private static $relations = array();
 
     /**
      * Constructor de la class
@@ -130,7 +129,7 @@ class Model implements \Serializable
             $this->dump($data);
         }
         $this->initialize();
-        if (!isset(self::$_relations[get_called_class()])) {
+        if (!isset(self::$relations[get_called_class()])) {
             $this->createRelations();
         }
     }
@@ -144,12 +143,12 @@ class Model implements \Serializable
     {
         $model = get_called_class();
 
-        if (!isset(self::$_metadata[$model])) {
-            self::$_metadata[$model] = Adapter::factory($this->getConnection())
+        if (!isset(self::$metadata[$model])) {
+            self::$metadata[$model] = Adapter::factory($this->getConnection())
                     ->describe($this->getTable(), $this->getSchema());
         }
 
-        return self::$_metadata[$model];
+        return self::$metadata[$model];
     }
 
     /**
@@ -159,8 +158,11 @@ class Model implements \Serializable
      */
     public function dump($data)
     {
+        $validFields = $this->metadata()->getAttributesList();
         foreach ($data as $k => $v) {
-            $this->$k = $v;
+            if (in_array($k, $validFields)) {
+                $this->$k = $v;
+            }
         }
     }
 
@@ -291,9 +293,9 @@ class Model implements \Serializable
      *
      * @param string $table
      */
-    public static function setTable($table)
+    public function setTable($table)
     {
-        self::$_table[get_called_class()] = $table;
+        $this->table = $table;
     }
 
     /**
@@ -301,15 +303,12 @@ class Model implements \Serializable
      *
      * @return string
      */
-    public static function getTable()
+    public function getTable()
     {
-        // Asigna la tabla
-        $modelName = get_called_class();
-        if (!isset(self::$_table[$modelName])) {
-            $tableName = basename(str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $modelName));
-            self::$_table[$modelName] = strtolower(preg_replace('/(.+)([A-Z])/', "$1_$2", $tableName));
+        if (!isset($this->table)) {
+            $this->table = $this->createTableName(get_class($this));
         }
-        return self::$_table[$modelName];
+        return $this->table;
     }
 
     /**
@@ -320,7 +319,7 @@ class Model implements \Serializable
      */
     public function setSchema($schema)
     {
-        $this->_schema = $schema;
+        $this->schema = $schema;
         return $this;
     }
 
@@ -331,7 +330,7 @@ class Model implements \Serializable
      */
     public function getSchema()
     {
-        return $this->_schema;
+        return $this->schema;
     }
 
     /**
@@ -342,7 +341,7 @@ class Model implements \Serializable
      */
     public function setConnection($conn)
     {
-        $this->_connection = $conn;
+        $this->connection = $conn;
         return $this;
     }
 
@@ -353,7 +352,7 @@ class Model implements \Serializable
      */
     public function getConnection()
     {
-        return $this->_connection;
+        return $this->connection;
     }
 
     /**
@@ -368,7 +367,7 @@ class Model implements \Serializable
     {
         try {
             // Obtiene una instancia del adaptador y prepara la consulta
-            $this->resultSet = Adapter::factory($this->_connection)
+            $this->resultSet = Adapter::factory($this->connection)
                     ->prepare($sql);
 
             // Indica el modo de obtener los datos en el ResultSet
@@ -394,18 +393,18 @@ class Model implements \Serializable
      */
     public function query($dbQuery, $fetchMode = NULL)
     {
-        $dbQuery->table(static::getTable());
+        $dbQuery->table($this->getTable());
 
         self::createQuery();
 
         // Asigna el esquema si existe
-        if ($this->_schema) {
-            $dbQuery->schema($this->_schema);
+        if ($this->schema) {
+            $dbQuery->schema($this->schema);
         }
 
         try {
             // Obtiene una instancia del adaptador y prepara la consulta
-            $this->resultSet = Adapter::factory($this->_connection)
+            $this->resultSet = Adapter::factory($this->connection)
                     ->prepareDbQuery($dbQuery);
 
             // Indica el modo de obtener los datos en el ResultSet
@@ -609,7 +608,7 @@ class Model implements \Serializable
             // Convenio patron identidad en activerecord si PK es "id"
             if ($this->metadata()->getPK() === 'id' && (!isset($this->id) || $this->id == '')) {
                 // Obtiene el ultimo id insertado y lo carga en el objeto
-                $this->id = Adapter::factory($this->_connection)
+                $this->id = Adapter::factory($this->connection)
                                 ->pdo()->lastInsertId();
             }
 
@@ -828,7 +827,7 @@ class Model implements \Serializable
      */
     public function begin()
     {
-        return Adapter::factory($this->_connection)->pdo()->beginTransaction();
+        return Adapter::factory($this->connection)->pdo()->beginTransaction();
     }
 
     /**
@@ -838,7 +837,7 @@ class Model implements \Serializable
      */
     public function rollback()
     {
-        return Adapter::factory($this->_connection)->pdo()->rollBack();
+        return Adapter::factory($this->connection)->pdo()->rollBack();
     }
 
     /**
@@ -848,7 +847,7 @@ class Model implements \Serializable
      */
     public function commit()
     {
-        return Adapter::factory($this->_connection)->pdo()->commit();
+        return Adapter::factory($this->connection)->pdo()->commit();
     }
 
     /**
@@ -861,8 +860,8 @@ class Model implements \Serializable
      */
     protected function belongsTo($model, $fk)
     {
-        $fk || $fk = $model::getTable() . '_id';
-        self::$_relations[get_called_class()]['belongsTo'][$model] = $fk;
+        $fk || $fk = $this->createTableName($model) . '_id';
+        self::$relations[get_called_class()]['belongsTo'][$model] = $fk;
     }
 
     /**
@@ -875,8 +874,8 @@ class Model implements \Serializable
      */
     protected function hasOne($model, $fk = NULL)
     {
-        $fk || $fk = static::getTable() . "_id";
-        self::$_relations[get_called_class()]['hasOne'][$model] = $fk;
+        $fk || $fk = $this->getTable() . "_id";
+        self::$relations[get_called_class()]['hasOne'][$model] = $fk;
     }
 
     /**
@@ -889,8 +888,8 @@ class Model implements \Serializable
      */
     protected function hasMany($model, $fk = NULL)
     {
-        $fk || $fk = static::getTable() . "_id";
-        self::$_relations[get_called_class()]['hasMany'][$model] = $fk;
+        $fk || $fk = $this->getTable() . "_id";
+        self::$relations[get_called_class()]['hasMany'][$model] = $fk;
     }
 
     /**
@@ -905,9 +904,9 @@ class Model implements \Serializable
      */
     protected function hasAndBelongsToMany($model, $through, $fk = NULL, $key = NULL)
     {
-        $fk || $fk = $model::getTable() . '_id';
-        $key || $key = static::getTable() . '_id';
-        self::$_relations[get_called_class()]['hasAndBelongsToMany']
+        $fk || $fk = $this->createTableName($model) . '_id';
+        $key || $key = $this->getTable() . '_id';
+        self::$relations[get_called_class()]['hasAndBelongsToMany']
                 [$model] = compact('through', 'fk', 'key');
     }
 
@@ -920,48 +919,48 @@ class Model implements \Serializable
      */
     public function get($model)
     {
-        if (!isset(self::$_relations[get_called_class()])) {
+        if (!isset(self::$relations[get_called_class()])) {
             return false;
         }
 
-        if (isset(self::$_relations[get_called_class()]['belongsTo']) &&
-                isset(self::$_relations[get_called_class()]['belongsTo'][$model])) {
+        if (isset(self::$relations[get_called_class()]['belongsTo']) &&
+                isset(self::$relations[get_called_class()]['belongsTo'][$model])) {
 
             if (!isset($this->{$fk})) {
                 return false;
             }
 
-            $fk = self::$_relations[get_called_class()]['belongsTo'][$model];
+            $fk = self::$relations[get_called_class()]['belongsTo'][$model];
 
             return $model::findBy($fk, $this->{$fk});
         }
 
-        if (isset(self::$_relations[get_called_class()]['hasOne']) &&
-                isset(self::$_relations[get_called_class()]['hasOne'][$model])) {
+        if (isset(self::$relations[get_called_class()]['hasOne']) &&
+                isset(self::$relations[get_called_class()]['hasOne'][$model])) {
 
             if (!isset($this->{$fk})) {
                 return false;
             }
 
-            $fk = self::$_relations[get_called_class()]['hasOne'][$model];
+            $fk = self::$relations[get_called_class()]['hasOne'][$model];
 
-            return $model::findBy(self::$_metadata[$model]->getPK(), $this->{$fk});
+            return $model::findBy(self::$metadata[$model]->getPK(), $this->{$fk});
         }
 
-        if (isset(self::$_relations[get_called_class()]['hasMany']) &&
-                isset(self::$_relations[get_called_class()]['hasMany'][$model])) {
+        if (isset(self::$relations[get_called_class()]['hasMany']) &&
+                isset(self::$relations[get_called_class()]['hasMany'][$model])) {
 
             if (!isset($this->{$this->metadata()->getPK()})) {
                 return array();
             }
 
-            $fk = self::$_relations[get_called_class()]['hasMany'][$model];
+            $fk = self::$relations[get_called_class()]['hasMany'][$model];
 
             return $model::findAllBy($fk, $this->{$this->metadata()->getPK()});
         }
 
-        if (isset(self::$_relations[get_called_class()]['hasAndBelongsToMany']) &&
-                isset(self::$_relations[get_called_class()]['hasAndBelongsToMany'][$model])) {
+        if (isset(self::$relations[get_called_class()]['hasAndBelongsToMany']) &&
+                isset(self::$relations[get_called_class()]['hasAndBelongsToMany'][$model])) {
 
             $pk1 = $this->metadata()->getPK();
 
@@ -969,16 +968,16 @@ class Model implements \Serializable
                 return array();
             }
 
-            $relation = self::$_relations[get_called_class()]['hasAndBelongsToMany'][$model];
+            $relation = self::$relations[get_called_class()]['hasAndBelongsToMany'][$model];
 
             $instance = new $model();
 
             $fk = $relation['fk'];
             $key = $relation['key'];
             $pk2 = $instance->metadata()->getPK();
-            $thisTable = static::getTable();
-            $modelTable = $model::getTable();
-            $through = $relation['through']::getTable();
+            $thisTable = $this->getTable();
+            $modelTable = $this->createTableName($model);
+            $through = $this->createTableName($relation['through']);
 
             $model::createQuery()
                     ->select("$modelTable.*")
@@ -1000,6 +999,12 @@ class Model implements \Serializable
     private static function getDbQuery()
     {
         return isset(self::$dbQuery[get_called_class()]) ? self::$dbQuery[get_called_class()] : static::createQuery();
+    }
+
+    private function createTableName($className)
+    {
+        $className = basename(str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $className));
+        return strtolower(preg_replace('/(.+)([A-Z])/', "$1_$2", $className));
     }
 
     public function serialize()

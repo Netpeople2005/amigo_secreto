@@ -162,16 +162,94 @@ class CookiesCollection extends Collection
 namespace KumbiaPHP\Kernel;
 
 use KumbiaPHP\Kernel\File;
-use KumbiaPHP\Kernel\Collection;
 
-class FilesCollection extends Collection
+class FilesCollection
 {
+
+    
+    protected $params;
 
     public function __construct()
     {
-        foreach ((array) $_FILES as $name => $data) {
-            $this->set($name, new File($data));
+        foreach ((array) $_FILES as $name => $file) {
+            if (isset($file['name']) && is_array($file['name'])) {
+                foreach (array_keys($file['name']) as $key) {
+                    $this->set($key, new File(array(
+                            'name' => $file['name'][$key],
+                            'type' => $file['type'][$key],
+                            'tmp_name' => $file['tmp_name'][$key],
+                            'error' => $file['error'][$key],
+                            'size' => $file['size'][$key],
+                        )), $name);
+                }
+            } else {
+                $this->set($name, new File($file));
+            }
         }
+    }
+
+    
+    public function has($key, $form = null)
+    {
+        if (null === $form) {
+            return array_key_exists($key, $this->params);
+        } else {
+            return isset($this->params[$form]) && isset($this->params[$form][$key]);
+        }
+    }
+
+    
+    public function get($key, $form = null)
+    {
+        if (null === $form && $this->has($key)) {
+            return $this->params[$key];
+        } elseif ($this->has($key, $form)) {
+            return $this->params[$form][$key];
+        } else {
+            return null;
+        }
+    }
+
+    
+    public function set($key, File $file, $form = null)
+    {
+        if (null === $form) {
+            $this->params[$key] = $file;
+        } else {
+            $this->params[$form][$key] = $file;
+        }
+    }
+
+    
+    public function all()
+    {
+        return $this->params;
+    }
+
+    
+    public function count()
+    {
+        return count($this->params);
+    }
+
+    
+    public function delete($key, $form = null)
+    {
+        if ($this->has($key)) {
+            unset($this->params[$key]);
+        }
+    }
+
+    
+    public function clear()
+    {
+        $this->params = array();
+    }
+
+    
+    public function keys()
+    {
+        return array_keys($this->all());
     }
 
 }
@@ -682,7 +760,8 @@ class ConfigReader
 
     
     protected $config;
-    private $sectionsValid = array('config', 'parameters');
+
+//    private $sectionsValid = array('config', 'parameters');
 
     public function __construct(AppContext $app)
     {
@@ -708,9 +787,8 @@ class ConfigReader
     
     protected function compile(AppContext $app)
     {
-        $section['config'] = array();
-        $section['services'] = array();
-        $section['parameters'] = array();
+        $parameters = array();
+        $services = array();
 
         $dirs = array_merge($app->getModules(), array('app' => dirname($app->getAppPath())));
 
@@ -719,27 +797,27 @@ class ConfigReader
             $servicesFile = rtrim($dir, '/') . '/' . $namespace . '/config/services.ini';
 
             if (is_file($configFile)) {
-                foreach (parse_ini_file($configFile, TRUE) as $sectionType => $values) {
+                foreach (parse_ini_file($configFile, true) as $sectionType => $values) {
 
-                    if (in_array($sectionType, $this->sectionsValid)) {
-                        foreach ($values as $index => $v) {
-                            $section[$sectionType][$index] = $v;
-                        }
+                    foreach ($values as $index => $v) {
+                        $parameters[$sectionType][$index] = $v;
                     }
                 }
             }
             if (is_file($servicesFile)) {
                 foreach (parse_ini_file($servicesFile, TRUE) as $serviceName => $config) {
-                    $section['services'][$serviceName] = $config;
+                    $services[$serviceName] = $config;
                 }
             }
         }
-
-        $section = $this->explodeIndexes($section);
-
-        unset($section['config']); //esta seccion esta disponible en parameters con el prefio config.*
-
-        return $this->prepareAditionalConfig($section);
+//           var_dump($this->prepareAditionalConfig(array(
+//            'parameters' => $parameters,
+//            'services' => $services,
+//        )));die;
+        return $this->prepareAditionalConfig(array(
+            'parameters' => $parameters,
+            'services' => $services,
+        ));
     }
 
     public function getConfig()
@@ -748,31 +826,31 @@ class ConfigReader
     }
 
     
-    protected function explodeIndexes(array $section)
-    {
-        foreach ($section['config'] as $key => $value) {
-            $explode = explode('.', $key);
-            //si hay un punto y el valor delante del punto
-            //es el nombre de un servicio existente
-            if (count($explode) > 1 && isset($section['services'][$explode[0]])) {
-                //le asignamos el nuevo valor al parametro
-                //que usará ese servicio
-                if (isset($section['parameters'][$explode[1]])) {
-                    $section['parameters'][$explode[1]] = $value;
-                }
-            } else {
-                $section['parameters']['config.' . $key] = $value;
-            }
-        }
-        return $section;
-    }
+//    protected function explodeIndexes(array $section)
+//    {
+//        foreach ($section['config'] as $key => $value) {
+//            $explode = explode('.', $key);
+//            //si hay un punto y el valor delante del punto
+//            //es el nombre de un servicio existente
+//            if (count($explode) > 1 && isset($section['services'][$explode[0]])) {
+//                //le asignamos el nuevo valor al parametro
+//                //que usará ese servicio
+//                if (isset($section['parameters'][$explode[1]])) {
+//                    $section['parameters'][$explode[1]] = $value;
+//                }
+//            } else {
+//                $section['parameters']['config.' . $key] = $value;
+//            }
+//        }
+//        return $section;
+//    }
 
     
     protected function prepareAditionalConfig($configs)
     {
         //si se usa el routes lo añadimos al container
-        if (isset($configs['parameters']['config.routes'])) {
-            $router = substr($configs['parameters']['config.routes'], 1);
+        if (isset($configs['parameters']['config']['routes'])) {
+            $router = substr($configs['parameters']['config']['routes'], 1);
 
             //si es el router por defecto quien reescribirá las url
             if ('router' === $router) {
@@ -799,7 +877,7 @@ class ConfigReader
 
         //si se estan usando locales y ningun módulo a establecido una definición para
         //el servicio translator, lo hacemos por acá.
-        if (isset($configs['parameters']['config.locales'])
+        if (isset($configs['parameters']['config']['locales'])
                 && !isset($configs['services']['translator'])) {
             $configs['services']['translator'] = array(
                 'class' => 'KumbiaPHP\\Translation\\Translator',
@@ -884,7 +962,11 @@ class DependencyInjection implements DependencyInjectionInterface
                 return $this->container->get($id);
             }
 
-            $instance = $reflection->newInstanceArgs($arguments);
+            if (isset($config['construct'])) {
+                $instance = $reflection->newInstanceArgs($arguments);
+            } else {
+                $instance = $reflection->newInstanceArgs();
+            }
         }
         //agregamos la instancia del objeto al contenedor.
         $this->container->setInstance($id, $instance);
@@ -1395,15 +1477,6 @@ class ControllerResolver
         $controllerClass = str_replace('/', '\\', $this->module) . "\\Controller\\{$this->controllerName}";
 
         try {
-
-            $controllerFile = "{$app->getModules($this->module)}{$controllerClass}.php";
-
-            if (!is_file($controllerFile)) {
-                throw new NotFoundException();
-            }
-
-            require_once $controllerFile;
-
             $reflectionClass = new ReflectionClass($controllerClass);
             if ($reflectionClass->getShortName() !== $this->controllerName) {
                 throw new NotFoundException();
@@ -2035,8 +2108,11 @@ abstract class Kernel implements KernelInterface
         $this->initDispatcher($config->getConfig());
         //seteamos el contexto de la aplicación como servicio
         self::$container->setInstance('app.context', $context);
+        //si se usan locales los añadimos.
+        if (isset(self::$container['config']['locales'])) {
+            $context->setLocales(self::$container['config']['locales']);
+        }
         //establecemos el Request en el AppContext
-        $context->setLocales(self::$container->getParameter('config.locales'));
         $context->setRequest($request);
     }
 
@@ -2188,16 +2264,11 @@ abstract class Kernel implements KernelInterface
     
     protected function initContainer(array $config = array())
     {
-        $definitions = array(
-            'services' => $config['services'],
-            'parameters' => $config['parameters'],
-        );
-
-        $definitions['parameters']['app_dir'] = $this->getAppPath();
+        $config['parameters']['app_dir'] = $this->getAppPath();
 
         $this->di = new DependencyInjection();
 
-        self::$container = new Container($this->di, $definitions);
+        self::$container = new Container($this->di, $config);
     }
 
     

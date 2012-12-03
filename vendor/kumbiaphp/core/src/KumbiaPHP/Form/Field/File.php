@@ -2,14 +2,15 @@
 
 namespace KumbiaPHP\Form\Field;
 
-use KumbiaPHP\Form\Field\Field;
+use KumbiaPHP\Kernel\Kernel;
+use KumbiaPHP\Form\Field\Text;
 
 /**
  * Description of FormFieldText
  *
  * @author manuel
  */
-class File extends Field
+class File extends Text
 {
 
     public function __construct($fieldName)
@@ -29,15 +30,8 @@ class File extends Field
 
     public function getValue()
     {
-        if (array_key_exists($this->getFieldName(), $_FILES)) {
-            if ($_FILES[$this->getFieldName()]['size'] > 0) {
-                return $_FILES[$this->getFieldName()];
-            } else {
-                return NULL;
-            }
-        } else {
-            return NULL;
-        }
+        return Kernel::get('request')->files
+            ->get($this->getFieldName(), $this->formName);
     }
 
 }

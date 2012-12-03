@@ -5,6 +5,7 @@ namespace KumbiaPHP\Form;
 use \ArrayAccess;
 use KumbiaPHP\Kernel\Kernel;
 use KumbiaPHP\Kernel\Request;
+use KumbiaPHP\Form\Field\File;
 use KumbiaPHP\Validation\Validatable;
 use KumbiaPHP\ActiveRecord\ActiveRecord;
 use KumbiaPHP\Form\Exception\FormException;
@@ -86,10 +87,10 @@ class Form implements ArrayAccess, Validatable
     final public function __construct($model, $createFields = false)
     {
         if ($model instanceof ActiveRecord) {
-            if (!($this->validationBuilder = $model->getValidations()) instanceof ValidationBuilder) {
+            if (!($this->validationBuilder = clone $model->getValidations()) instanceof ValidationBuilder) {
                 throw new \LogicException(sprintf("El método\"validations\" de la clase \"%s\" debe devolver un objeto ValidationBuilder", get_class($model)));
             }
-            $this->name = strtolower(basename(get_class($model)));
+            $this->name = $model->getTable();
             $this->model = $model;
             if ($createFields) {
                 $this->initFromModel($model);
@@ -164,7 +165,7 @@ class Form implements ArrayAccess, Validatable
                 ->getFieldName();
         $field->init(); //inicializaciones especiales.
         $this->fields[$index] = $field;
-        if ($field instanceof Field\File) {
+        if ($field instanceof File) {
             $this->attrs(array('enctype' => 'multipart/form-data'));
         }
         if (($this->model instanceof ActiveRecord ) && isset($this->model->{$index})) {

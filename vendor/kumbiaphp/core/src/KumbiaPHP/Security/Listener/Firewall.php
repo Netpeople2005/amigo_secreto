@@ -127,8 +127,13 @@ class Firewall
         if (0 === strpos($provider, '@')) {
             $provider = $this->container->get(str_replace('@', '', $provider));
         } else {
-            $providerClassName = $this->container
-                    ->getParameter('security.provider.' . $provider);
+            $config = $this->container->getParameter('security');
+            
+            if(!isset($config['provider'][$provider])){
+                throw new AuthException("No existe el proveedor $provider");                
+            }
+            
+            $providerClassName =$config['provider'][$provider];
 
             if (!class_exists($providerClassName)) {
                 $providerClassName || $providerClassName = $provider;
@@ -164,7 +169,7 @@ class Firewall
             $event = new SecurityEvent($this->container->get('request')
                             , $this->container->get('security'));
 
-            $this->container->get('dispatcher')->dispatch(Events::LOGIN, $event);
+            $this->container->get('event.dispatcher')->dispatch(Events::LOGIN, $event);
 
             if ($event->hasResponse()) {//si se estableció una respuesta
                 //eliminamos la sesión por si se creó
@@ -215,7 +220,7 @@ class Firewall
         $event = new SecurityEvent($this->container->get('request')
                         , $this->container->get('security'));
 
-        $this->container->get('dispatcher')->dispatch(Events::LOGOUT, $event);
+        $this->container->get('event.dispatcher')->dispatch(Events::LOGOUT, $event);
 
         //eliminamos la sesión
         $this->container->get('session')->delete(null, 'security');

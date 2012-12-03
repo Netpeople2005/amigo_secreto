@@ -38,7 +38,7 @@ class View
     public function __construct(ContainerInterface $container)
     {
         self::$container = $container;
-        define('APP_CHARSET', self::$container->getParameter('config.charset') ? : 'UTF-8');
+        define('APP_CHARSET', self::$container['config']['charset'] ? : 'UTF-8');
     }
 
     /**
@@ -92,7 +92,7 @@ class View
 
             ob_start();
             if (null !== $this->response) {
-                $this->view .= '.' . $this->response;//si se estableció un response, lo concatenamos con el view
+                $this->view .= '.' . $this->response; //si se estableció un response, lo concatenamos con el view
             }
             include $this->findView($this->view, $scaffold);
             self::$content = ob_get_clean();
@@ -113,9 +113,9 @@ class View
         self::$content = '';
         if ($showFlash) {
             try {
-
-                if (self::$container->hasParameter('view.flash')) {
-                    self::partial(self::$container->getParameter('view.flash'));
+                $configView = self::$container->getParameter('view');
+                if (is_array($configView) && isset($configView['flash'])) {
+                    self::partial($configView['flash']);
                 } else {
                     self::partial('flash/messages');
                 }
