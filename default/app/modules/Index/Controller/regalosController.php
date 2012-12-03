@@ -20,11 +20,7 @@ class regalosController extends Controller{
     
     
     public function index_action() {
-        
-        
-        
+        $this->usuarios = Usuarios::findAll();
     }
     
 }
-
-?>
