@@ -18,8 +18,12 @@
     <div class="wrapper">
         <div id="banner">
             <h1><a href="index.html" id="logo">Merry X-Mas</a></h1>
-            <span class="text">Si no tienes un personaje Asignado</span></span>
-            <?php echo Html::link('registro', '<span><span>Has click Aqui</span>','class="button"') ?>
+            <?php if (!\KumbiaPHP\View\View::get('security')->isLogged()): ?>
+                <span class="text">Si no tienes un personaje Asignado</span></span>
+                <?php echo Html::link('registro', '<span><span>Has click Aqui</span>', 'class="button"') ?>
+            <?php else: ?>
+                <?php \KumbiaPHP\View\View::partial('personajes') ?>
+            <?php endif; ?>
         </div>
     </div>
     <div id="menu">
@@ -27,10 +31,10 @@
             <div id="menu_right">
                 <nav>
                     <ul>
-                        <li><?php echo Html::link('index', 'Inicio')?></li>
-                        <li><?php echo Html::link('chat', 'Chat')?></li>
-                        <li><?php echo Html::link('regalos', 'Regalos')?></li>
-                        <li><?php echo Html::link('logout', 'Salir')?></li>
+                        <li><?php echo Html::link('index', 'Inicio') ?></li>
+                        <li><?php echo Html::link('chat', 'Chat') ?></li>
+                        <li><?php echo Html::link('regalos', 'Regalos') ?></li>
+                        <li><?php echo Html::link('logout', 'Salir') ?></li>
                     </ul>
                 </nav>
             </div>
