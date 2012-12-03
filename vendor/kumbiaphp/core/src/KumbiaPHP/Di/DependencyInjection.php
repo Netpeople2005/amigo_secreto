@@ -82,7 +82,11 @@ class DependencyInjection implements DependencyInjectionInterface
                 return $this->container->get($id);
             }
 
-            $instance = $reflection->newInstanceArgs($arguments);
+            if (isset($config['construct'])) {
+                $instance = $reflection->newInstanceArgs($arguments);
+            } else {
+                $instance = $reflection->newInstanceArgs();
+            }
         }
         //agregamos la instancia del objeto al contenedor.
         $this->container->setInstance($id, $instance);

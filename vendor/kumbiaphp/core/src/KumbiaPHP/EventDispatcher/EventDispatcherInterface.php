@@ -3,6 +3,7 @@
 namespace KumbiaPHP\EventDispatcher;
 
 use KumbiaPHP\EventDispatcher\Event;
+use KumbiaPHP\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Esta interface define métodos que deberán ser implementados por los 
@@ -24,15 +25,21 @@ interface EventDispatcherInterface
      * Agrega un escucha al despachador de eventos
      * @param string $eventName nombre del evento a disparar
      * @param array $listener un arreglo con el nombre del servicio y el metodo a llamar
+     * @param int $priority orden de prioridad en que se ejecuta el escucha
      */
-    public function addListener($eventName, $listener);
+    public function addListener($eventName, $listener, $priority = 0);
 
     /**
-     * Verifica la existencia de un escucha en el despachador de eventos
-     * @param string $eventName nombre del evento 
-     * @param string $listener nombre del servicio
+     * Agrega un subcriptor de eventos al dispatcher
+     * @param EventSubscriberInterface $subscriber objeto subscritor
      */
-    public function hasListener($eventName, $listener);
+    public function addSubscriber(EventSubscriberInterface $subscriber);
+
+    /**
+     * Verifica la existencia de escuchas para un evento
+     * @param string $eventName nombre del evento 
+     */
+    public function hasListeners($eventName);
 
     /**
      * remueve un escucha del despachador de eventos
@@ -40,4 +47,6 @@ interface EventDispatcherInterface
      * @param string $listener nombre del servicio
      */
     public function removeListener($eventName, $listener);
+
+    public function getListeners($eventName);
 }

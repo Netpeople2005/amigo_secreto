@@ -130,8 +130,11 @@ abstract class Kernel implements KernelInterface
         $this->initDispatcher($config->getConfig());
         //seteamos el contexto de la aplicación como servicio
         self::$container->setInstance('app.context', $context);
+        //si se usan locales los añadimos.
+        if (isset(self::$container['config']['locales'])) {
+            $context->setLocales(self::$container['config']['locales']);
+        }
         //establecemos el Request en el AppContext
-        $context->setLocales(self::$container->getParameter('config.locales'));
         $context->setRequest($request);
     }
 
@@ -306,16 +309,11 @@ abstract class Kernel implements KernelInterface
      */
     protected function initContainer(array $config = array())
     {
-        $definitions = array(
-            'services' => $config['services'],
-            'parameters' => $config['parameters'],
-        );
-
-        $definitions['parameters']['app_dir'] = $this->getAppPath();
+        $config['parameters']['app_dir'] = $this->getAppPath();
 
         $this->di = new DependencyInjection();
 
-        self::$container = new Container($this->di, $definitions);
+        self::$container = new Container($this->di, $config);
     }
 
     /**
@@ -328,12 +326,17 @@ abstract class Kernel implements KernelInterface
         foreach ($config['services'] as $service => $params) {
             if (isset($params['listen'])) {
                 foreach ($params['listen'] as $method => $event) {
-                    $this->dispatcher->addListener($event, array($service, $method));
+                    //hacemos un explode para ver si se ha pasado la prioridad en el evento
+                    //la prioridad es un numero entero que va seguido del nombre del evento
+                    //y dos puntos, ejemplos kumbia.request:100
+                    $event = explode(':', $event);
+                    $this->dispatcher->addListener($event[0], array($service, $method)
+                            , isset($event[1]) ? (int) $event[1] : 0);
                 }
             }
         }
 
-        self::$container->setInstance('dispatcher', $this->dispatcher);
+        self::$container->setInstance('event.dispatcher', $this->dispatcher);
     }
 
 }

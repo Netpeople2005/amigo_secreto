@@ -127,8 +127,13 @@ class Firewall
         if (0 === strpos($provider, '@')) {
             $provider = $this->container->get(str_replace('@', '', $provider));
         } else {
-            $providerClassName = $this->container
-                    ->getParameter('security.provider.' . $provider);
+            $config = $this->container->getParameter('security');
+            
+            if(!isset($config['provider'][$provider])){
+                throw new AuthException("No existe el proveedor $provider");                
+            }
+            
+            $providerClassName =$config['provider'][$provider];
 
             if (!class_exists($providerClassName)) {
                 $providerClassName || $providerClassName = $provider;

@@ -6,6 +6,7 @@ use KumbiaPHP\Kernel\Response;
 use \InvalidArgumentException;
 use K2\Mail\Exception\MailException;
 use KumbiaPHP\Di\Container\ContainerInterface;
+use K2\EmailTemplate\Template\TemplateInterface;
 
 require_once __DIR__ . '/phpmailer/class.phpmailer.php';
 
@@ -24,6 +25,12 @@ class Mailer
 
     /**
      *
+     * @var array
+     */
+    protected $config;
+
+    /**
+     *
      * @var PHPMailer
      */
     protected $mailer;
@@ -37,15 +44,16 @@ class Mailer
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
+        $this->config = $container->getParameter('k2_mailer');
         $this->mailer = new \PHPMailer(true);
         $this->loadParameters();
-        $this->mailer->CharSet = $container->getParameter('config.charset') ? : 'UTF-8';
-        $this->mailer->SMTPDebug = $container->getParameter('k2.mailer.debug') ? : 0;
-        $this->bcc = $container->getParameter('k2.mailer.bcc') ? : array();
+        $this->mailer->CharSet = isset($this->config['charset']) ? $this->config['charset'] : 'UTF-8';
+        $this->mailer->SMTPDebug = isset($this->config['debug']) ? $this->config['debug'] : 0;
+        $this->bcc = isset($this->config['bcc']) ? $this->config['bcc'] : array();
         if ($container->get("app.context")->inProduction()) {
             $this->enabled = false;
         } else {
-            $this->enabled = $container->getParameter('k2.mailer.enable') ? true : false;
+            $this->enabled = isset($this->config['enable']) ? $this->config['enable'] : true;
         }
     }
 
@@ -137,6 +145,19 @@ class Mailer
     }
 
     /**
+     * Establece los atributos de la clase K2\EmailTemplate\Template\TemplateInterface
+     * cuando se usa dicho módulo.
+     * @param TemplateInterface $template
+     * @return \K2\Mail\Mailer 
+     */
+    public function setTemplate(TemplateInterface $template)
+    {
+        $this->setSubject($template->getSubject())
+                ->setBody($template->getContent());
+        return $this;
+    }
+
+    /**
      * Devuelve el error de la lib PHPMailer
      * @return string
      */
@@ -152,27 +173,27 @@ class Mailer
      */
     protected function loadParameters()
     {
-        switch (strtolower($this->container->getParameter('k2.mailer.transport'))) {
+        switch (strtolower($this->config['transport'])) {
             case 'smtp':
                 $this->mailer->isSMTP();
                 $this->mailer->SMTPAuth = true;
                 $this->mailer->SMTPSecure = 'ssl';
-                if (null == $this->mailer->Port = $this->container
-                        ->getParameter('k2.mailer.port')) {
-                    throw new InvalidArgumentException("Debe especificar un valor para el parametro k2.mailer.port</b> en el archivo app/config/config.ini</b>");
+                if (!isset($this->config['port'])) {
+                    throw new InvalidArgumentException("Debe especificar un valor para el parametro port en el archivo app/config/config.ini en la sección [k2_mailer]");
                 }
-                if (null == $this->mailer->Host = $this->container
-                        ->getParameter('k2.mailer.host')) {
-                    throw new InvalidArgumentException("Debe especificar un valor para el parametro k2.mailer.host</b> en el archivo app/config/config.ini</b>");
+                $this->mailer->Port = $this->config['port'];
+                if (!isset($this->config['host'])) {
+                    throw new InvalidArgumentException("Debe especificar un valor para el parametro host en el archivo app/config/config.ini en la sección [k2_mailer]");
                 }
-                if (null == $this->mailer->Username = $this->container
-                        ->getParameter('k2.mailer.username')) {
-                    throw new InvalidArgumentException("Debe especificar un valor para el parametro k2.mailer.username</b> en el archivo app/config/config.ini</b>");
+                $this->mailer->Host = $this->config['host'];
+                if (!isset($this->config['username'])) {
+                    throw new InvalidArgumentException("Debe especificar un valor para el parametro username en el archivo app/config/config.ini en la sección [k2_mailer]");
                 }
-                if (null == $this->mailer->Password = $this->container
-                        ->getParameter('k2.mailer.password')) {
-                    throw new InvalidArgumentException("Debe especificar un valor para el parametro k2.mailer.password</b> en el archivo app/config/config.ini</b>");
+                $this->mailer->Username = $this->config['username'];
+                if (!isset($this->config['password'])) {
+                    throw new InvalidArgumentException("Debe especificar un valor para el parametro password en el archivo app/config/config.ini en la sección [k2_mailer]");
                 }
+                $this->mailer->Password = $this->config['password'];
                 break;
             case 'mail':
                 $this->mailer->IsMail();
@@ -184,22 +205,20 @@ class Mailer
                 $this->mailer->IsSendMail();
                 break;
             default:
-                if ($this->container->hasParameter('k2.mailer.transport')) {
-                    throw new InvalidArgumentException("No se reconoce el valor para el transport en k2.mailer.transport</b> en el archivo app/config/config.ini</b>");
+                if (!isset($this->config['transport'])) {
+                    throw new InvalidArgumentException("Debe especificar un valor para el parametro transport en el archivo app/config/config.ini en la sección [k2_mailer]");
                 } else {
-                    throw new InvalidArgumentException("Debe especificar un valor para el parametro k2.mailer.transport</b> en el archivo app/config/config.ini</b>");
+                    throw new InvalidArgumentException("No se reconoce el valor para el transport en transport en el archivo app/config/config.ini en la sección [k2_mailer]");
                 }
         }
 
-        if (null == $fromname = $this->container
-                ->getParameter('k2.mailer.fromname')) {
-            throw new InvalidArgumentException("Debe especificar un valor para el parametro k2.mailer.fromname</b> en el archivo app/config/config.ini</b>");
+        if (!isset($this->config['fromname'])) {
+            throw new InvalidArgumentException("Debe especificar un valor para el parametro fromname en el archivo app/config/config.ini en la sección [k2_mailer]");
         }
-        if (null == $fromemail = $this->container
-                ->getParameter('k2.mailer.fromemail')) {
-            throw new InvalidArgumentException("Debe especificar un valor para el parametro k2.mailer.fromemail</b> en el archivo app/config/config.ini</b>");
+        if (!isset($this->config['fromemail'])) {
+            throw new InvalidArgumentException("Debe especificar un valor para el parametro fromemail en el archivo app/config/config.ini en la sección [k2_mailer]");
         }
-        $this->mailer->SetFrom($fromemail, $fromname);
+        $this->mailer->SetFrom($this->config['fromemail'], $this->config['fromname']);
     }
 
     protected function addBCC()

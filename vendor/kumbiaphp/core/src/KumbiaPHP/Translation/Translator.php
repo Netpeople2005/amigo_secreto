@@ -17,7 +17,9 @@ class Translator implements TranslatorInterface
 
     public function __construct()
     {
-        $provider = Kernel::getParam('translator.provider');
+        $config = Kernel::getParam('translator');
+        
+        $provider = $config['provider'];
 
         if ('@' === $provider[0]) {
             $this->messages = Kernel::get(substr($provider, 1));
