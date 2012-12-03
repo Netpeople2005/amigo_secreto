@@ -23,4 +23,13 @@ class EquiposRegistrados extends ActiveRecord
         return $this->save();
     }
 
+    public static function eliminar(Request $request)
+    {
+        self::createQuery()
+                ->where('descripcion = :pc')
+                ->bindValue('pc', md5($request->getClientIp()));
+        
+        return self::deleteAll();
+    }
+
 }
