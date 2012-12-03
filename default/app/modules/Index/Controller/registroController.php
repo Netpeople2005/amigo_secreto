@@ -42,19 +42,25 @@ class registroController extends Controller
 
             $this->usuario->begin(); //iniciamos la transaccion
 
-            if ($usr2 = Usuarios::crearRegistro($this->usuario, $this->getRequest())) {
+            if ($usr2 = Usuarios::preRegistro($this->usuario, $this->getRequest())) {
+                //si se envió el correo hacemos el commit.
+                $this->usuario->commit();
                 //acá hacemos el envio del correo.
                 if ($this->enviarCorreoRegistro($this->usuario->personaje, $usr2->personaje, $correo)) {
-                    //si se envió el correo hacemos el commit.
-                    $this->usuario->commit();
-                    $this->get('flash')->success("Tu usuario fue creado con exito");
-                    $this->get('flash')->info("Se ha enviado un correo a <b>$correo</b> donde 
+                    if (Usuarios::postRegistro($this->usuario)) {
+                        $this->get('flash')->success("Tu usuario fue creado con exito");
+                        $this->get('flash')->info("Se ha enviado un correo a <b>$correo</b> donde 
                             podrás ver el personaje que se te ha Asignado y a quien le regalas...!!!");
-                    $this->get('session')->set('correo_registro', $correo);
-                    return $this->loguear($this->usuario);
+                        $this->get('session')->set('correo_registro', $correo);
+                        return $this->loguear($this->usuario);
+                    }
+                } else {
+                    Usuarios::cancelarRegistro($this->usuario, $usr2, $this->getRequest());
+                    $this->get('flash')->error("No se pudo Enviar el Correo");
                 }
+            } else {
+                $this->usuario->rollback();
             }
-            $this->usuario->rollback();
             $this->get('flash')->error("No se pudo crear el usuario");
         } else {
             $this->get('flash')->warning("No se ha podido completar el registro");
@@ -94,10 +100,10 @@ class registroController extends Controller
         }
 
         $form['clave_actual'] = $form['nueva_clave'] = $form['nueva_clave2'] = null; //limpiamos los campos
-        
-        if ($this->get('session')->has('correo_registro')){
-             $form['correo'] = $this->get('session')->get('correo_registro');
-             $this->get('session')->delete('correo_registro');
+
+        if ($this->get('session')->has('correo_registro')) {
+            $form['correo'] = $this->get('session')->get('correo_registro');
+            $this->get('session')->delete('correo_registro');
         }
 
         $this->form = $form;

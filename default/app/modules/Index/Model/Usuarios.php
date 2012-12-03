@@ -9,16 +9,22 @@ use KumbiaPHP\Security\Auth\User\UserInterface;
 class Usuarios extends ActiveRecord implements UserInterface
 {
 
+    const ASIGNADO = 2;
+    const NO_DISPONIBLE = 1;
+    const DISPONIBLE = 0;
+
     public static function aleatorio()
     {
 
         self::createQuery()
-                ->where('en_uso = 0');
+                ->where('en_uso = :estado')
+                ->bindValue('estado', self::DISPONIBLE);
 
         $numDisponibles = self::count();
 
         self::createQuery()
-                ->where('en_uso = 0')
+                ->where('en_uso = :estado')
+                ->bindValue('estado', self::DISPONIBLE)
                 ->limit(1)
                 ->offset(rand(0, $numDisponibles - 1));
 
@@ -44,14 +50,14 @@ class Usuarios extends ActiveRecord implements UserInterface
     }
 
     /**
-     * Crea el personaje en la bd y el asigna el personaje a quien le va a regalar
+     * PreCrea el personaje en la bd y el asigna el personaje a quien le va a regalar
      * @param Usuarios $usuario el usuario que se acaba de registrar
      * @param Request $request petición actual
      * @return Usuarios|false el usuario a quien se le va a regalar 
      */
-    public static function crearRegistro(Usuarios $usuario, Request $request)
+    public static function preRegistro(Usuarios $usuario, Request $request)
     {
-        $usuario->en_uso = 1;
+        $usuario->en_uso = self::NO_DISPONIBLE; //lo seteamos primero a no disponible
 
         if (!$usuario->save()) {
             return false;
@@ -75,6 +81,37 @@ class Usuarios extends ActiveRecord implements UserInterface
         }
 
         return $usr2;
+    }
+
+    /**
+     * Termina el proceso de registro
+     * @param Usuarios $usuario el usuario que se acaba de registrar
+     * @return boolean el usuario a quien se le va a regalar 
+     */
+    public static function postRegistro(Usuarios $usuario)
+    {
+        $usuario->en_uso = self::ASIGNADO;
+
+        if (!$usuario->save()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public static function cancelarRegistro(Usuarios $usuario, Usuarios $aQuienRegala, Request $request)
+    {
+        $usuario->en_uso = self::DISPONIBLE;
+
+        $usuario->save();
+        
+        $aQuienRegala->amigo_asignado = 0;
+        
+        $aQuienRegala->save();
+        
+        EquiposRegistrados::eliminar($request);
+
+        return true;
     }
 
     public function auth(UserInterface $user)
