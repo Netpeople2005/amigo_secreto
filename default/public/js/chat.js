@@ -35,7 +35,7 @@ function actualizarChat() {
 <img width="40px" height="48px" alt="Foto de Aquaman" src="/amigo_secreto/img/'+this.imagen+'">\n\
 </td>\n\
 <td style=" padding-left: 7px"><b>'
-                    +this.nombre+'dice:</b>\n\
+                    +this.nombre+' dice:</b>\n\
 </td></tr><tr><td style=" padding-left: 7px">'
                     +this.mensaje+'\
 </td>\n\
@@ -43,6 +43,15 @@ function actualizarChat() {
 </table>\n\
 </p>');
                 $("#ultimo_id").val(this.mensaje_id)
+                
+                var song = $('audio');
+                if(song.paused){
+                    song.play();
+                } else {
+                    song.pause();
+                }
+                
+                
             });
             $("#chatbox").scrollTop($("#chatbox")[0].scrollHeight);
         }
