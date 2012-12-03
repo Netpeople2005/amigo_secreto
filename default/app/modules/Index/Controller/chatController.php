@@ -38,7 +38,7 @@ class chatController extends Controller{
         
         $data = array(
             'usuarios_id' => $this->get('security')->getToken('id'),
-            'texto' => $nuevo_mensaje,
+            'texto' => $this->checkInput($nuevo_mensaje),
             'fecha' => date(DATE_W3C)
         );
         
@@ -60,6 +60,13 @@ class chatController extends Controller{
         
         return new \KumbiaPHP\Kernel\JsonResponse($mensajes);
         
+    }
+    
+    public function checkInput($str) {
+        $str = @strip_tags($str);
+        $str = @stripslashes($str);
+        $str = mysql_real_escape_string($str);
+        return $str;
     }
     
 }
