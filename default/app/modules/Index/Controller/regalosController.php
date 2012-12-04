@@ -19,23 +19,30 @@ use KumbiaPHP\Kernel\Controller\Controller;
 use KumbiaPHP\Form\Form;
 use Index\Model\EquiposRegistrados;
 
-class regalosController extends Controller{
-    
-    
-    public function index_action() {
-            $this->activeUser = \KumbiaPHP\View\View::get('security')->getToken()->getUser();
-        die('mame');
-        if (!EquiposRegistrados::existe($this->getRequest())) {
-            $this->activeUser = \KumbiaPHP\View\View::get('security')->getToken()->getUser();
-        }else{
-            $this->activeUser = "no tiene usuario registrado";
-//            KumbiaPHP\View\View::get('security')->getToken('personaje');
-//            KumbiaPHP\View\View::get('security')->getToken('imagen');
-        }
-    }
+class regalosController extends Controller
+{
 
-    public function ver_regalos_action(){
+
+    public function index_action()
+    {
         $this->usuarios = Usuarios::findAll();
     }
-    
+
+    public function editar_regalos_action()
+    {
+        $user = Usuarios::findByPK($this->get('security')->getToken('id'));
+        $form = new Form($user);
+        $form->add('regalo_esperado', 'textarea')->setLabel('Ingrese el Regalo que desea recibir:')->required();
+        $this->form = $form;
+
+        if ($this->getRequest()->isMethod('post')) {
+            if($form->bindRequest($this->getRequest())->isValid()){
+                if ($user->save()) {
+                    $this->get('flash')->success("Regalo deseado guardado!!!");
+                } else {
+                    $this->get('flash')->error($user->getErrors());
+                }
+            }
+        }
+    }
 }
