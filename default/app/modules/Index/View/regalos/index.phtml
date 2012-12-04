@@ -1,0 +1,12 @@
+<?php \KumbiaPHP\View\View::content(true) ?>
+<div>
+    <?php
+//        echo HTML::img($usuarios->imagen);
+        var_dump($activeUser);
+        echo Form::open('regalos', 'post', array('class' => 'form'));
+        echo Form::label('Ingrese el Regalo que desea recibir:', 'regalo');
+        echo Form::input(array('id'=>'regalo', 'type'=>'text'));
+        echo " ".Form::submit('Registrar Regalo', array('class'=>'button'));
+        echo Form::close()
+    ?>
+</div>
