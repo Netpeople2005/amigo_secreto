@@ -7,7 +7,7 @@
     <tr>
     <?php $i = 0; foreach ($usuarios as $usu) { $i++; ?>
         <td>
-            <div style="margin:0 0 10px 70px;"><?php echo Html::img($usu->imagen,'','width="90"'); ?></div>
+            <div style="margin:0 0 10px 70px;"><?php echo Html::img($usu->imagen,'','width="90" title="'.$usu->personaje.'"'); ?></div>
         </td>
         <td>
             <div style="margin-left:20px;margin-top:40px;float:left;font-weight:bold;">Quiere:</div>
