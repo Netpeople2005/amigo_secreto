@@ -11,7 +11,7 @@ class indexController extends Controller
 
     public function index_action()
     {
-        
+        return $this->getRouter()->forward('regalos/');
     }
 
     public function inicio_action()
@@ -20,5 +20,7 @@ class indexController extends Controller
             $this->get('flash')->warning("Debes Crear Tu Contraseña...!!!");
             return $this->getRouter()->forward('registro/cambiar_clave');
         }
+        
+        return $this->getRouter()->forward('regalos/');
     }
 }
