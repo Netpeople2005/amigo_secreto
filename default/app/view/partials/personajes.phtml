@@ -4,7 +4,7 @@ $peronsajes = \Index\Model\Usuarios::findAll('array');
 ?>
 <ul class="header_personajes">    
 <?php foreach ($peronsajes as $e): ?>
-    <li><?php echo Html::img($e['imagen'], $e['personaje']) ?></li>
+    <li><?php echo Html::img($e['imagen'], $e['personaje'], "title=\"{$e['personaje']}\"") ?></li>
 <?php endforeach; ?>
 </ul>
 <style>
