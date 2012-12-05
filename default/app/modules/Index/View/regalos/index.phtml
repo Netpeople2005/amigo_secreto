@@ -1,14 +1,27 @@
+<div style="font-weight:bold;font-size:18px;font-family:tahoma;padding:7px;margin-bottom:10px;text-align:center;">
+    Querido Super Amigo Secreto Quiero que me Regales...
+</div>
+<div style="clear: both;"></div>
 <table>
+    <tbody>
     <tr>
+    <?php $i = 0; foreach ($usuarios as $usu) { $i++; ?>
         <td>
-            Los regalos son de un monto mínimo de 500 Bs. más lo que toque por el almuerzo.
-            monto que considero realmente tonto tomando en cuenta que el viernes 14-12 debemos cobrar al menos 15 mir bolivares cada uno en utilidades...
-            El Melón!!!
-            </br></br></br>
-            work in progresssss!!!
+            <div style="margin:0 0 10px 70px;"><?php echo Html::img($usu->imagen,'','width="90" title="'.$usu->personaje.'"'); ?></div>
         </td>
         <td>
-            <?php echo Html::img('trabajadores-flojos.jpg'); ?>
+            <div style="margin-left:20px;margin-top:40px;float:left;font-weight:bold;">Quiere:</div>
+            <?php if($usu->regalo_esperado == ""){ ?>
+            <div style="margin-top:25px;float:left;"><?php echo Html::img('banana.gif','','width="60"'); ?></div>
+            <?php }else{ ?>
+            <div style="margin:40px 0px 0 10px;float:left;font-weight:bold;font-size:15px;color:red;text-decoration:blink;">
+                <?php echo $usu->regalo_esperado; ?>
+            </div>
+            <?php } ?>
         </td>
-    </tr>
+        <?php if($i == 2){ ?>
+            </tr><tr>
+        <?php $i = 0; } ?>
+        <?php } ?>
+    </tbody>
 </table>
