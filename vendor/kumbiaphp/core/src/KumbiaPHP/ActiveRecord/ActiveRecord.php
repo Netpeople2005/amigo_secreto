@@ -29,7 +29,6 @@ class ActiveRecord extends Model implements Validatable
      * @var array 
      */
     protected $errors;
-    protected $validated = false;
 
     public function getValidation()
     {
@@ -48,13 +47,6 @@ class ActiveRecord extends Model implements Validatable
 
     public function getValidations()
     {
-        if (true === $this->validated) {
-            /*
-             * Si ya se validó la data por medio de la Lib Form, no 
-             * volvemos a validar todo 
-             */
-            return new ValidationBuilder();
-        }
         if (!$this->validation) {
             $this->validation = new ValidationBuilder();
             /* @var $attribute \ActiveRecord\Metadata\Attribute */

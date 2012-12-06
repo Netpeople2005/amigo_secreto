@@ -28,6 +28,10 @@ class indexController extends Controller
 
     public function foto_action()
     {
+        Usuarios::createQuery()
+                    ->where("id != :id")
+                    ->bindValue('id', $this->get("security")->getToken('id'));
+
         $personajes = Usuarios::findAll('array');
 
         $form = new Form('cambio_foto');
@@ -39,18 +43,16 @@ class indexController extends Controller
                 ->required();
 
         $form->add('imagen', 'file')
-                ->setLabel('Nueva Imagen')
+                ->setLabel('Nueva Imagen (150x180 pixeles)')
                 ->required();
 
         if ($this->getRequest()->isMethod('post')) {
             if ($form->bindRequest($this->getRequest())->isValid()) {
-                $file = $form->getField('imagen')->getValue();
                 //cambiar esto para usar la lib Upload y poder validar el tamaño
                 //y extension de la imagen.
-                $upload = Upload::factory($this->getRequest(), array('cambio_foto', 'imagen'), 'image');
+                $upload = Upload::factory($this->getRequest(), array('cambio_foto', 'imagen'), 'Image');
 
-                $path = dirname($this->container['app_dir']) .'public/img/perfiles2/';
-                return;
+                $path = dirname($this->container['app_dir']) .'/public/img/perfiles/';
 
                 $upload->setMinWidth(150);
                 $upload->setMaxWidth(150);
@@ -61,8 +63,9 @@ class indexController extends Controller
 
                 if ($upload->save()) {
                     $personaje = Usuarios::findByPK($form['personaje']->getValue());
-                    $personaje->imagen = $path . $upload->getFile()->getName();
+                    $personaje->imagen = 'perfiles/' . $upload->getFile()->getName();
                     if($personaje->save()){
+                        $this->get('noticias')->add("Vacilate la nueva imagen de {$personaje->personaje}");
                         $this->get('flash')->success("Imagen subida con exito");                        
                     }else{
                         $this->get('flash')->error($personaje->getErrors());

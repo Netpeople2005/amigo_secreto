@@ -86,10 +86,8 @@ class Form implements ArrayAccess, Validatable
      */
     final public function __construct($model, $createFields = false)
     {
+        $this->validationBuilder = new ValidationBuilder();
         if ($model instanceof ActiveRecord) {
-            if (!($this->validationBuilder = clone $model->getValidations()) instanceof ValidationBuilder) {
-                throw new \LogicException(sprintf("El método\"validations\" de la clase \"%s\" debe devolver un objeto ValidationBuilder", get_class($model)));
-            }
             $this->name = $model->getTable();
             $this->model = $model;
             if ($createFields) {
@@ -99,7 +97,6 @@ class Form implements ArrayAccess, Validatable
                 $this->initExtrasFromModel($model);
             }
         } elseif (is_string($model)) {
-            $this->validationBuilder = new ValidationBuilder();
             $this->name = $model;
             $this->init();
         } else {
@@ -375,11 +372,6 @@ class Form implements ArrayAccess, Validatable
     public function isValid()
     {
         if ($this->model instanceof ActiveRecord) {
-            //indicamos que el modelo ya ha sido validado, para
-            //que al guardar el modelo y se llame nuevamente al validador
-            //el metodo getValidations() de la clase ActiveRecord devuelva
-            //un ValidationBuilder Vacio.
-            $this->model->setValidated(true);            
             if (isset($this->model->{$this->model->metadata()->getPK()})
                     && $this->model->exists()) {
                 return Kernel::get('validator')->validateOnUpdate($this);
