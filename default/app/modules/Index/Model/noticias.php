@@ -6,7 +6,10 @@
  * Time: 11:31 AM
  * To change this template use File | Settings | File Templates.
  */
-class noticias
+namespace Index\Model;
+use KumbiaPHP\ActiveRecord\ActiveRecord;
+
+class Noticias extends ActiveRecord
 {
 
 }
