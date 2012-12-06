@@ -768,7 +768,7 @@ class ConfigReader
         $configFile = $app->getAppPath() . '/config/config.php';
         if ($app->inProduction()) {
             if (is_file($configFile)) {
-                $this->config = require_once $configFile;
+                $this->config = require $configFile;
                 return;
             } else {
                 $this->config = $this->compile($app);
@@ -815,35 +815,15 @@ class ConfigReader
 //            'services' => $services,
 //        )));die;
         return $this->prepareAditionalConfig(array(
-            'parameters' => $parameters,
-            'services' => $services,
-        ));
+                    'parameters' => $parameters,
+                    'services' => $services,
+                ));
     }
 
     public function getConfig()
     {
         return $this->config;
     }
-
-    
-//    protected function explodeIndexes(array $section)
-//    {
-//        foreach ($section['config'] as $key => $value) {
-//            $explode = explode('.', $key);
-//            //si hay un punto y el valor delante del punto
-//            //es el nombre de un servicio existente
-//            if (count($explode) > 1 && isset($section['services'][$explode[0]])) {
-//                //le asignamos el nuevo valor al parametro
-//                //que usará ese servicio
-//                if (isset($section['parameters'][$explode[1]])) {
-//                    $section['parameters'][$explode[1]] = $value;
-//                }
-//            } else {
-//                $section['parameters']['config.' . $key] = $value;
-//            }
-//        }
-//        return $section;
-//    }
 
     
     protected function prepareAditionalConfig($configs)
@@ -854,24 +834,9 @@ class ConfigReader
 
             //si es el router por defecto quien reescribirá las url
             if ('router' === $router) {
-                //solo le añadimos un listener.
+                //le añadimos un listener.
                 $configs['services']['router']
-                        ['listen']['rewrite'] = 'kumbia.request';
-            } else {
-                //si es un servicio distinto al router. y existe,
-                //lo añadimos al principio de todos los servicios.
-                $def = $configs['services'][$router]; //guardamos la definición del servicio en una variable temporal.
-                unset($configs['services'][$router]); //eliminamos la definición del arreglo $config
-                //volteamos el arreglo de servicios, para insertar de nuevo la definición.
-                $configs['services'] = array_reverse($configs['services'], true);
-                //insertamos la definición, quedando esta al final del array.
-                $configs['services'][$router] = $def;
-                //volvemos a voltear los servicios, con lo que la definición insertada
-                //queda de primera.
-                $configs['services'] = array_reverse($configs['services'], true);
-                //esto es importante debido a que queremos que el primer escucha que siempre
-                //se ejecute sea el que hace las reescrituras de url, para que cuando se
-                //llamen a los siguientes escuchas ya la url esté reescrita.
+                        ['listen']['rewrite'] = 'kumbia.request:1000';//con priotidad 1000 para que sea el primero en ejecutarse.
             }
         }
 
@@ -1252,6 +1217,7 @@ class Container implements ContainerInterface
 namespace KumbiaPHP\EventDispatcher;
 
 use KumbiaPHP\EventDispatcher\Event;
+use KumbiaPHP\EventDispatcher\EventSubscriberInterface;
 
 
 interface EventDispatcherInterface
@@ -1261,13 +1227,18 @@ interface EventDispatcherInterface
     public function dispatch($eventName, Event $event);
 
     
-    public function addListener($eventName, $listener);
+    public function addListener($eventName, $listener, $priority = 0);
 
     
-    public function hasListener($eventName, $listener);
+    public function addSubscriber(EventSubscriberInterface $subscriber);
+
+    
+    public function hasListeners($eventName);
 
     
     public function removeListener($eventName, $listener);
+
+    public function getListeners($eventName);
 }
 
 namespace KumbiaPHP\EventDispatcher;
@@ -1286,6 +1257,9 @@ class EventDispatcher implements EventDispatcherInterface
     protected $container;
 
     
+    protected $sorted = array();
+
+    
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
@@ -1293,47 +1267,83 @@ class EventDispatcher implements EventDispatcherInterface
 
     public function dispatch($eventName, Event $event)
     {
-        if (!array_key_exists($eventName, $this->listeners)) {
+        if (!$this->hasListeners($eventName)) {
             return;
         }
-        if (is_array($this->listeners[$eventName]) && count($this->listeners[$eventName])) {
-            foreach ($this->listeners[$eventName] as $listener) {
+        foreach ($this->getListeners($eventName) as $listener) {
+            call_user_func($listener, $event);
+            if ($event->isPropagationStopped()) {
+                return;
+            }
+        }
+    }
+
+    public function addListener($eventName, $listener, $priority = 0)
+    {
+        $this->listeners[$eventName][$priority][] = $listener;
+        unset($this->sorted[$eventName]);
+    }
+
+    public function hasListeners($eventName)
+    {
+        return isset($this->listeners[$eventName]);
+    }
+
+    public function getListeners($eventName)
+    {
+        if (isset($this->sorted[$eventName])) {
+            //si ya estan ordenados, solo devolvemos los listeners.
+            return $this->sorted[$eventName];
+        }
+
+        //si no estan en el arreglo $sorted, lo creamos.
+        $this->sortListeners($eventName);
+
+        foreach ($this->sorted[$eventName] as $index => $listener) {
+            if (!is_callable($listener)) {
+                //si listener no es un funcion ó un objeto con un metodo que se pueda llamar
+                //es porque estamos solicitando un servicio.
+                //entonces convertirmos el listener en un objeto con un metodo que se
+                //puedan llamar.
                 $service = $this->container->get($listener[0]);
-                $service->{$listener[1]}($event);
-                if ($event->isPropagationStopped()) {
+                $this->sorted[$eventName][$index][0] = $service;
+            }
+        }
+
+        return $this->sorted[$eventName];
+    }
+
+    public function removeListener($eventName, $listener)
+    {
+        if ($this->hasListeners($eventName)) {
+            foreach ($this->listeners[$eventName] as $priority => $listeners) {
+                if (false !== ($key = array_search($listener, $listeners))) {
+                    unset($this->listeners[$eventName][$priority][$key]);
+                    unset($this->sorted[$eventName]);
                     return;
                 }
             }
         }
     }
 
-    public function addListener($eventName, $listener)
-    {
-        if (!$this->hasListener($eventName, $listener)) {
-            $this->listeners[$eventName][] = $listener;
-        }
-    }
-
-    public function hasListener($eventName, $listener)
+    protected function sortListeners($eventName)
     {
         if (isset($this->listeners[$eventName])) {
-            return in_array($listener, $this->listeners[$eventName]);
-        } else {
-            return FALSE;
+            krsort($this->listeners[$eventName]);
         }
+        //unimos todos los listener que estan en prioridades diferentes.
+        $this->sorted[$eventName] = call_user_func_array('array_merge', $this->listeners[$eventName]);
     }
 
-    public function removeListener($eventName, $listener)
+    public function addSubscriber(EventSubscriberInterface $subscriber)
     {
-        if ($this->hasListener($eventName, $listener)) {
-            do {
-                if ($listener === current($this->listeners[$eventName])) {
-                    $key = key(current($this->listeners[$eventName]));
-                    break;
-                }
-            } while (next($this->listeners[$eventName]));
+        foreach ($subscriber->getSubscribedEvents() as $method => $params) {
+            $params = (array) $params;
+            isset($params[1]) || $params[1] = 0; //si no se pasa la prioridad, la creamos.
+            //params[0] es el método del objeto a llamar.
+            //params[1] es la prioridad.
+            $this->addListener($eventName, array($subscriber, $params[0]), $params[1]);
         }
-        unset($this->listeners[$eventName][$key]);
     }
 
 }
@@ -2278,12 +2288,17 @@ abstract class Kernel implements KernelInterface
         foreach ($config['services'] as $service => $params) {
             if (isset($params['listen'])) {
                 foreach ($params['listen'] as $method => $event) {
-                    $this->dispatcher->addListener($event, array($service, $method));
+                    //hacemos un explode para ver si se ha pasado la prioridad en el evento
+                    //la prioridad es un numero entero que va seguido del nombre del evento
+                    //y dos puntos, ejemplos kumbia.request:100
+                    $event = explode(':', $event);
+                    $this->dispatcher->addListener($event[0], array($service, $method)
+                            , isset($event[1]) ? (int) $event[1] : 0);
                 }
             }
         }
 
-        self::$container->setInstance('dispatcher', $this->dispatcher);
+        self::$container->setInstance('event.dispatcher', $this->dispatcher);
     }
 
 }

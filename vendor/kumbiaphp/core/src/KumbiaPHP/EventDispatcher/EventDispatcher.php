@@ -116,10 +116,11 @@ class EventDispatcher implements EventDispatcherInterface
     public function addSubscriber(EventSubscriberInterface $subscriber)
     {
         foreach ($subscriber->getSubscribedEvents() as $method => $params) {
-            if (is_array($params)) {//si es arreglo es porque pasamos la prioridad
-            } else {
-                $this->addListener($eventName, $listener);
-            }
+            $params = (array) $params;
+            isset($params[1]) || $params[1] = 0; //si no se pasa la prioridad, la creamos.
+            //params[0] es el método del objeto a llamar.
+            //params[1] es la prioridad.
+            $this->addListener($eventName, array($subscriber, $params[0]), $params[1]);
         }
     }
 
