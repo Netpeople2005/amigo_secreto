@@ -37,7 +37,7 @@
 (function($) {
 	$.fn.dwdinanews = function(opt) {
 		var opciones = {
-			retardo: 4000,
+			retardo: 6000,
 			tiempoAnimacion: 500,
 			funcionAnimacion: ''
 		}
