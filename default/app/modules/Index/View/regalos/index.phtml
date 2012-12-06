@@ -13,15 +13,11 @@
             <div style="margin-left:10px;margin-top:40px;float:left;font-weight:bold;">Deseo:</div>
             <div id="<?php echo $usu->id; ?>" style="border-style: solid;border-width:1px;border-color:#808080;background-color:#f6f6f6;
                         margin:0px 0px 0 10px;float:left;font-weight:bold;font-size:15px;color:red;
-                        width:460px;height:85px;text-align:justify;padding: 5px;">
-                    <?php if ($usu->regalo_esperado == "") { ?>
+                        width:460px;height:85px;text-align:justify;padding: 5px;"><?php if ($usu->regalo_esperado == "") { ?>
                     <div style="margin-left:30px;margin-top:40px;float:left;color:red;font-weight: bold;">Un</div>
                     <div style="margin:20px 0 0 5px;float:left;"><?php echo Html::img('banana.gif', '', 'width="60"'); ?></div>
                     <div style="margin-left:10px;margin-top:40px;float:left;color:red;font-weight: bold;"> Bien grande...</div>
-                <?php } else { ?>
-                    <?php echo $usu->regalo_esperado; ?>
-                <?php } ?>
-            </div>
+                <?php } else {echo $usu->regalo_esperado;} ?></div>
         </td>
     </tr>
     <?php } ?>
@@ -33,6 +29,9 @@
         $.getJSON('regalos/recargar', function(data){
             $.each(data, function(){
                 if(this.regalo_esperado != "" && this.regalo_esperado != null){
+                    if($("#"+this.id).html() != this.regalo_esperado){
+                        $("#"+this.id).css('color','green');
+                    }
                     $("#"+this.id).html(this.regalo_esperado);
                 }
             })
