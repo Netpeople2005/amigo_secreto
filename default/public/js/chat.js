@@ -2,6 +2,10 @@
 
 $(document).ready(function() {
     
+    window.titulo_actual = document.title;
+    
+    window.alerta_id = '';
+    
     setInterval(actualizarChat, 1000);
     
     $("#chatbox").scrollTop($("#chatbox")[0].scrollHeight);
@@ -10,6 +14,19 @@ $(document).ready(function() {
     
         if(e.which == 13) {
             enviarMensaje();
+        }
+    });
+    
+    $("body").bind('mouseover', function(){
+        
+        if(window.alerta_id) {
+            
+            clearInterval(window.alerta_id);
+            
+            document.title = window.titulo_actual;
+            
+            window.alerta_id = '';
+            
         }
     });
 });
@@ -44,18 +61,27 @@ function actualizarChat() {
 </p>');
                 $("#ultimo_id").val(this.mensaje_id)
                 
-                var song = $('audio');
-                if(song.paused){
-                    song.play();
-                } else {
-                    song.pause();
-                }
-                
-                
             });
+            if(window.alerta_id == '') {
+                
+            window.alerta_id = setInterval(alertaTab, 500);
+            
+            }
+            
             $("#chatbox").scrollTop($("#chatbox")[0].scrollHeight);
         }
     });
+}
+
+function alertaTab() {
+    
+    if(document.title == 'Nuevos mensajes') {
+        
+        document.title = window.titulo_actual;
+    }
+    else {
+        document.title = 'Nuevos mensajes';
+    }
 }
     
 function enviarMensaje() {
