@@ -44,6 +44,7 @@
     <div id="" style="width:215px;">
         <h2><span><span><strong>&nbsp;</strong>Noticias Calientes!!!</span></span></h2>
     </div>
+    <div id="all">
     <div id="novedades" class="box1">
         <ul class="noti">
             <?php foreach($noti as $n){ ?>
@@ -58,24 +59,22 @@
             <?php } ?>
         </ul>
     </div>
+    </div>
     <h3><span><span><strong>&nbsp;</strong><?php echo Html::link('noticias/crear_noticia','Mete tu Chisme aqui...'); ?></span></span></h3>
 
 </article>
 <a href="#" id="banner1"><?php echo Html::img('banner1.jpg') ?></a>
 <script>
-//    setInterval(actualiza, 30000);
-//    function actualiza(){
-//        location.reload();
-//    }
-//    function actualiza(){
-//        $.getJSON(BASE_URL + 'noticias/recargar', function(data){
-//            var html = "";
-//            $.each(data, function(){
-//                html += "<li><strong class='color1'>"+this.hora+"</strong><br>"+this.noticia+"<a href='#' class='marker'>&nbsp;</a></li>";
-//            });
-//            console.log(html);
-//            $(".noti").html(html);
-//            $("#novedades").dwdinanews();
-//        });
-//    }
+    setInterval(actualiza, 60000);
+    function actualiza(){
+        $.getJSON(BASE_URL + 'noticias/recargar', function(data){
+            var html = "<div id='novedades' class='box1'><ul class='noti'>";
+            $.each(data, function(){
+                html += "<li><strong class='color1'>"+this.hora+"</strong><br>"+this.noticia+"<a href='#' class='marker'>&nbsp;</a></li>";
+            });
+            html += "</ul></div>";
+            $("#all").html(html);
+            $("#novedades").dwdinanews();
+        });
+    }
 </script>
