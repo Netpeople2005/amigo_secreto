@@ -28,6 +28,10 @@ class indexController extends Controller
 
     public function foto_action()
     {
+        Usuarios::createQuery()
+                    ->where("id != :id")
+                    ->bindValue('id', $this->get("security")->getToken('id'));
+
         $personajes = Usuarios::findAll('array');
 
         $form = new Form('cambio_foto');
@@ -39,7 +43,7 @@ class indexController extends Controller
                 ->required();
 
         $form->add('imagen', 'file')
-                ->setLabel('Nueva Imagen')
+                ->setLabel('Nueva Imagen (150x180 pixeles)')
                 ->required();
 
         if ($this->getRequest()->isMethod('post')) {
@@ -61,6 +65,7 @@ class indexController extends Controller
                     $personaje = Usuarios::findByPK($form['personaje']->getValue());
                     $personaje->imagen = 'perfiles/' . $upload->getFile()->getName();
                     if($personaje->save()){
+                        $this->get('noticias')->add("Vacilate la nueva imagen de {$personaje->personaje}");
                         $this->get('flash')->success("Imagen subida con exito");                        
                     }else{
                         $this->get('flash')->error($personaje->getErrors());
