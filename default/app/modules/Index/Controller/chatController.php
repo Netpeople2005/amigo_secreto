@@ -39,7 +39,7 @@ class chatController extends Controller{
         $data = array(
             'usuarios_id' => $this->get('security')->getToken('id'),
             'texto' => $this->checkInput($nuevo_mensaje),
-            'fecha' => date(DATE_W3C)
+            'fecha' => date('Y-m-d H:i:s')
         );
         
         $chat = new Chat();
