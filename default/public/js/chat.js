@@ -49,7 +49,7 @@ function actualizarChat() {
 <table>\n\
 <tr>\n\
 <td rowspan="2">\n\
-<img width="40px" height="48px" alt="Foto de Aquaman" src="/amigo_secreto/img/'+this.imagen+'">\n\
+<img width="40px" height="48px" alt="'+this.nombre+'" title="'+this.nombre+'" src="/amigo_secreto/img/'+this.imagen+'">\n\
 </td>\n\
 <td style=" padding-left: 7px"><b>'
                     +this.nombre+' dice:</b>\n\
