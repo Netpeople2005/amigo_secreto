@@ -28,6 +28,7 @@ class noticiasController extends Controller
             if($form->bindRequest($this->getRequest())->isValid()){
                 if ($not->save()) {
                     $this->get('flash')->success("Noticia Registrada!!!");
+                    $form->setData(array());
                 } else {
                     $this->get('flash')->error($not->getErrors());
                 }
