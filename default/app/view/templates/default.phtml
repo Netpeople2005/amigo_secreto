@@ -11,6 +11,13 @@
         <?php Tag::js('cufon-replace') ?>
         <?php Tag::js('UkrainianMysl_400.font') ?>
         <?php Tag::js('HomewardBound_400.font') ?>
+    <!--NOTICIAS PLUGINS-->
+        <?php Tag::js('jquery.timer'); ?>
+        <?php Tag::js('jquery.easing.1.3'); ?>
+        <?php Tag::js('jquery.dwdinanews.0.1'); ?>
+        <?php Tag::js('news') ?>
+    <!--END NOTICIAS PLUGINS-->
+
         <!--[if lt IE 9]>
         <script type="text/javascript" src="http://info.template-help.com/files/ie6_warning/ie6_script_other.js"></script>
         <?php Tag::js('html5') ?>
@@ -31,11 +38,10 @@
                     </div>
                 </article>
                 <article class="col2 pad_left1">
-                    <?php if (KumbiaPHP\View\View::get('security')->isLogged()): ?>
-                        <?php KumbiaPHP\View\View::partial('barra_derecha') ?>                   
-                    <?php else: ?>
-                        <?php KumbiaPHP\View\View::partial('inicio_sesion') ?>                   
+                    <?php if (!KumbiaPHP\View\View::get('security')->isLogged()): ?>
+                        <?php KumbiaPHP\View\View::partial('inicio_sesion') ?>
                     <?php endif; ?>
+                        <?php KumbiaPHP\View\View::partial('barra_derecha') ?>
                 </article>
             </section>
             <!-- / content -->
