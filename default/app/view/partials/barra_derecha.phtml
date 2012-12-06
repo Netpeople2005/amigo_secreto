@@ -1,3 +1,8 @@
+<?php
+    use Index\Model\Noticias;
+    Noticias::createQuery()->order('id DESC');
+    $noti = Noticias::findAll();
+?>
 <style type="text/css">
     body {
         font-family: tahoma, verdana, arial, sans-serif;
@@ -39,13 +44,37 @@
     <div id="" style="width:215px;">
         <h2><span><span><strong>&nbsp;</strong>Noticias Calientes!!!</span></span></h2>
     </div>
+    <div id="all">
     <div id="novedades" class="box1">
-        <ul>
-            <li><strong class="color1">06-12-2012</strong><br>Acuaman recibió un regalo en la poceta del baño de hombres...<a href="#" class="marker">&nbsp;</a></li>
-            <li><strong class="color1">06-12-2012</strong><br>Hasta donde se conoce, ningún otro super amigo ha recibido regalito...<a href="#" class="marker">&nbsp;</a></li>
-            <li><strong class="color1">06-12-2012</strong><br>Sugerencias: Hay super amigos y amigas que esperan un camburcito para hoy...<a href="#" class="marker">&nbsp;</a></li>
-            <li><strong class="color1">06-12-2012</strong><br>Estén pendientes de los últimos avances en materia de los Super Amigos...<a href="#" class="marker">&nbsp;</a></li>
+        <ul class="noti">
+            <?php foreach($noti as $n){ ?>
+                <li>
+                    <strong class="color1">
+                        <?php echo $n->hora; ?>
+                    </strong>
+                    <br>
+                    <?php echo $n->noticia; ?>
+                    <a href="#" class="marker">&nbsp;</a>
+                </li>
+            <?php } ?>
         </ul>
     </div>
+    </div>
+    <h3><span><span><strong>&nbsp;</strong><?php echo Html::link('noticias/crear_noticia','Mete tu Chisme aqui...'); ?></span></span></h3>
+
 </article>
 <a href="#" id="banner1"><?php echo Html::img('banner1.jpg') ?></a>
+<script>
+    setInterval(actualiza, 60000);
+    function actualiza(){
+        $.getJSON(BASE_URL + 'noticias/recargar', function(data){
+            var html = "<div id='novedades' class='box1'><ul class='noti'>";
+            $.each(data, function(){
+                html += "<li><strong class='color1'>"+this.hora+"</strong><br>"+this.noticia+"<a href='#' class='marker'>&nbsp;</a></li>";
+            });
+            html += "</ul></div>";
+            $("#all").html(html);
+            $("#novedades").dwdinanews();
+        });
+    }
+</script>

@@ -106,12 +106,23 @@ abstract class Upload
     /**
      * Constructor
      *
-     * @param string $name nombre de archivo por método POST
+     * @param string|array $name nombre de archivo por método POST
+     * Si es un array, eñ ´primer valor es el form que contiene el file 
+     * y el segundo valor el indice.
      */
     public function __construct(Request $request, $name)
     {
         $this->request = $request;
-        if (!$this->file = $request->files->get($name)) {
+        if(is_array($name)){
+            if(1 >= count($name)){
+                throw new UploadException("El arreglo \$name debe tener 2 valores, nombre del form y campo con el archivo, está llegando: " . print_r($name, true));
+            }
+            $form = $name[0];
+            $name = $name[1];
+        }else{
+            $form = null;
+        }
+        if (!$this->file = $request->files->get($name, $form)) {
             throw new UploadException("No existe el archivo \"$name\" en los archivos subidos");
         }
     }
@@ -119,7 +130,10 @@ abstract class Upload
     /**
      * Obtiene el adaptador para Upload
      *
-     * @param string $name nombre de archivo recibido por POST
+     * @param string|array $name nombre de archivo recibido por POST
+     * Si es un array, eñ ´primer valor es el form que contiene el file 
+     * y el segundo valor el indice.
+     * 
      * @param string $adapter (File, Image)
      * @return File|Image
      */
@@ -253,7 +267,7 @@ abstract class Upload
      */
     protected function saveFile($name)
     {
-        return $this->file->move($this->path, $name);
+        return $this->file->move($this->path, $name, false);
     }
 
     /**

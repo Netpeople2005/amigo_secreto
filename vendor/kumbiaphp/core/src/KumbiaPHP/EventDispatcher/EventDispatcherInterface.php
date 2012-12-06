@@ -17,9 +17,9 @@ interface EventDispatcherInterface
     /**
      * Dispara los escuchas para un evento particular.
      * @param string $eventName nombre del evento a disparar
-     * @param Event clase a pasar a los escuchas, para cada evento pueden ser clases especificas.
+     * @param Event $event (opcional) clase a pasar a los escuchas, para cada evento pueden ser clases especificas.
      */
-    public function dispatch($eventName, Event $event);
+    public function dispatch($eventName, Event $event = null);
 
     /**
      * Agrega un escucha al despachador de eventos

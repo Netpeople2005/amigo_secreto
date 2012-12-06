@@ -67,14 +67,17 @@ class ConfigReader
             }
             if (is_file($servicesFile)) {
                 foreach (parse_ini_file($servicesFile, TRUE) as $serviceName => $config) {
+                    if (isset($config['listen'])) {
+                        foreach ($config['listen'] as $method => $event) {
+                            $config['listen'][$method] = $event = explode(':', $event);
+                            isset($event[1]) || $config['listen'][$method][1] = 0;
+                        }
+                    }
                     $services[$serviceName] = $config;
                 }
             }
         }
-//           var_dump($this->prepareAditionalConfig(array(
-//            'parameters' => $parameters,
-//            'services' => $services,
-//        )));die;
+
         return $this->prepareAditionalConfig(array(
                     'parameters' => $parameters,
                     'services' => $services,
@@ -103,7 +106,7 @@ class ConfigReader
             if ('router' === $router) {
                 //le añadimos un listener.
                 $configs['services']['router']
-                        ['listen']['rewrite'] = 'kumbia.request:1000';//con priotidad 1000 para que sea el primero en ejecutarse.
+                        ['listen']['rewrite'] = 'kumbia.request:1000'; //con priotidad 1000 para que sea el primero en ejecutarse.
             }
         }
 

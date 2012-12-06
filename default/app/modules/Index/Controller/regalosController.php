@@ -45,4 +45,9 @@ class regalosController extends Controller
             }
         }
     }
+
+    public function recargar_action(){
+        $recar = Usuarios::findAll();
+        return new \KumbiaPHP\Kernel\JsonResponse($recar);
+    }
 }

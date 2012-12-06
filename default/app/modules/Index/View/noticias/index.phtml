@@ -1,0 +1,19 @@
+<style>
+    th{ width: 200px; }
+    .fechaHora{ width: 200px; text-align:center;}
+    .noticia{ width: 400px; text-align: center;}
+</style>
+<table>
+    <thead>
+        <th>Contenido</th>
+        <th>Fecha y Hora</th>
+    </thead>
+    <tbody>
+        <?php foreach($noticias as $news){ ?>
+              <tr>
+                  <td class="noticia"><?php echo $news->noticia; ?></td>
+                  <td class="fechaHora"><?php echo $news->hora; ?></td>
+              </tr>
+        <?php } ?>
+    </tbody>
+</table>

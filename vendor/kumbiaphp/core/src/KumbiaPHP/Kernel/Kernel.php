@@ -127,7 +127,7 @@ abstract class Kernel implements KernelInterface
         //asignamos el kernel al container como un servicio
         self::$container->setInstance('app.kernel', $this);
         //iniciamos el dispatcher con esa config
-        $this->initDispatcher($config->getConfig());
+        $this->initDispatcher();
         //seteamos el contexto de la aplicación como servicio
         self::$container->setInstance('app.context', $context);
         //si se usan locales los añadimos.
@@ -318,24 +318,10 @@ abstract class Kernel implements KernelInterface
 
     /**
      * Inicializa el despachador de eventos
-     * @param array $config config de todo el proyecto.
      */
-    protected function initDispatcher(array $config = array())
+    protected function initDispatcher()
     {
         $this->dispatcher = new EventDispatcher(self::$container);
-        foreach ($config['services'] as $service => $params) {
-            if (isset($params['listen'])) {
-                foreach ($params['listen'] as $method => $event) {
-                    //hacemos un explode para ver si se ha pasado la prioridad en el evento
-                    //la prioridad es un numero entero que va seguido del nombre del evento
-                    //y dos puntos, ejemplos kumbia.request:100
-                    $event = explode(':', $event);
-                    $this->dispatcher->addListener($event[0], array($service, $method)
-                            , isset($event[1]) ? (int) $event[1] : 0);
-                }
-            }
-        }
-
         self::$container->setInstance('event.dispatcher', $this->dispatcher);
     }
 

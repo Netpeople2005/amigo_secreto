@@ -51,7 +51,7 @@ class Mailer
         $this->mailer->SMTPDebug = isset($this->config['debug']) ? $this->config['debug'] : 0;
         $this->bcc = isset($this->config['bcc']) ? $this->config['bcc'] : array();
         if ($container->get("app.context")->inProduction()) {
-            $this->enabled = false;
+            $this->enabled = true;
         } else {
             $this->enabled = isset($this->config['enable']) ? $this->config['enable'] : true;
         }

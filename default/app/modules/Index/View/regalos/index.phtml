@@ -4,30 +4,37 @@
 <div style="clear: both;"></div>
 <table style="width:100%;">
     <tbody>
-    <?php $i = 0; foreach ($usuarios as $usu) { ?>
+    <?php shuffle($usuarios); foreach ($usuarios as $usu) { ?>
     <tr>
         <td style="width:90px">
             <div style="margin:0 0 10px 10px;"><?php echo Html::img($usu->imagen, '', 'width="100%" title="' . $usu->personaje . '"'); ?></div>
         </td>
         <td>
             <div style="margin-left:10px;margin-top:40px;float:left;font-weight:bold;">Deseo:</div>
-            <?php if ($usu->regalo_esperado == "") { ?>
-                <div style="border-style: solid;border-width:1px;border-color:#808080;background-color:#f6f6f6;
+            <div id="<?php echo $usu->id; ?>" style="border-style: solid;border-width:1px;border-color:#808080;background-color:#f6f6f6;
                         margin:0px 0px 0 10px;float:left;font-weight:bold;font-size:15px;color:red;
-                        width:460px;height:85px;text-align:justify;padding: 5px;">
+                        width:460px;height:85px;text-align:justify;padding: 5px;"><?php if ($usu->regalo_esperado == "") { ?>
                     <div style="margin-left:30px;margin-top:40px;float:left;color:red;font-weight: bold;">Un</div>
                     <div style="margin:20px 0 0 5px;float:left;"><?php echo Html::img('banana.gif', '', 'width="60"'); ?></div>
                     <div style="margin-left:10px;margin-top:40px;float:left;color:red;font-weight: bold;"> Bien grande...</div>
-                </div>
-            <?php } else { ?>
-                <div style="border-style: solid;border-width:1px;border-color:#808080;background-color:#f6f6f6;
-                    margin:0px 0px 0 10px;float:left;font-weight:bold;font-size:15px;color:red;
-                    width:460px;height:85px;text-align:justify;padding: 5px;">
-                        <?php echo $usu->regalo_esperado; ?>
-                </div>
-            <?php } ?>
+                <?php } else {echo $usu->regalo_esperado;} ?></div>
         </td>
     </tr>
     <?php } ?>
     </tbody>
 </table>
+<script>
+    setInterval(recarga, 30000);
+    function recarga(){
+        $.getJSON(BASE_URL + 'regalos/recargar', function(data){
+            $.each(data, function(){
+                if(this.regalo_esperado != "" && this.regalo_esperado != null){
+                    if($("#"+this.id).html() != this.regalo_esperado){
+                        $("#"+this.id).css('color','green');
+                    }
+                    $("#"+this.id).html(this.regalo_esperado);
+                }
+            })
+        });
+    }
+</script>
