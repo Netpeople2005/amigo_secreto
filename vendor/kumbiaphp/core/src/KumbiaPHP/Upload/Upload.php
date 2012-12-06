@@ -114,15 +114,15 @@ abstract class Upload
     {
         $this->request = $request;
         if(is_array($name)){
-            if(1 <= count($name)){
-                throw new UploadException("El arreglo \$name debe tener 2 valores, nombre del form y campo con el archivo");
+            if(1 >= count($name)){
+                throw new UploadException("El arreglo \$name debe tener 2 valores, nombre del form y campo con el archivo, está llegando: " . print_r($name, true));
             }
-            $name = $name[1];
             $form = $name[0];
+            $name = $name[1];
         }else{
             $form = null;
         }
-        if (!$this->file = $request->files->get($name)) {
+        if (!$this->file = $request->files->get($name, $form)) {
             throw new UploadException("No existe el archivo \"$name\" en los archivos subidos");
         }
     }
@@ -267,7 +267,7 @@ abstract class Upload
      */
     protected function saveFile($name)
     {
-        return $this->file->move($this->path, $name);
+        return $this->file->move($this->path, $name, false);
     }
 
     /**

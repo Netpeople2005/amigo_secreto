@@ -85,7 +85,7 @@ class File
         return $this->extension;
     }
 
-    public function move($dir, $name = null)
+    public function move($dir, $name = null, $preserveExtension = true)
     {
         if (!is_dir($dir) && false === @mkdir($dir, 0777, true)) {
             throw new FileException("'No existe el directorio $dir");
@@ -94,7 +94,7 @@ class File
             throw new FileException("'No existe el directorio $dir");
         }
 
-        if ($name) {
+        if ($name && $preserveExtension) {
             $name .= '.' . $this->getExtension();
         } else {
             $name = $this->name;
