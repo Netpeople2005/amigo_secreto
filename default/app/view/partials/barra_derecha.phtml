@@ -39,11 +39,16 @@
         font-weight: bold;
         text-transform: uppercase;
     }
+
+    #link {
+        text-decoration: none;
+    }
 </style>
 <article class="col2 pad_left1">
     <div id="" style="width:215px;">
         <h2><span><span><strong>&nbsp;</strong>Noticias Calientes!!!</span></span></h2>
     </div>
+    <a id="link" href="<?php echo \KumbiaPHP\View\View::app()->createUrl('noticias');?>">
     <div id="all">
     <div id="novedades" class="box1">
         <ul class="noti">
@@ -60,6 +65,7 @@
         </ul>
     </div>
     </div>
+    </a>
     <h3><span><span><strong>&nbsp;</strong><?php echo Html::link('noticias/crear_noticia','Mete tu Chisme aqui...'); ?></span></span></h3>
 
 </article>
