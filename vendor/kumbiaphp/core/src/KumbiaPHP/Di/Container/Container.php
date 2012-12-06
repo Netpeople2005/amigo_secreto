@@ -104,10 +104,7 @@ class Container implements ContainerInterface
         return array_key_exists($id, $this->definitions['parameters']);
     }
 
-    /**
-     * Devuelve las definiciones de los servicios
-     * @return array 
-     */
+    
     public function getDefinitions()
     {
         return $this->definitions;

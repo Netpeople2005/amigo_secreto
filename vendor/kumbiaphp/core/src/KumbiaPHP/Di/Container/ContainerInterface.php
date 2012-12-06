@@ -52,4 +52,10 @@ interface ContainerInterface extends \ArrayAccess
      * @return ContainerInterface
      */
     public function setParameter($id, $value);
+
+    /**
+     * Devuelve las definiciones de los servicios
+     * @return array 
+     */
+    public function getDefinitions();
 }

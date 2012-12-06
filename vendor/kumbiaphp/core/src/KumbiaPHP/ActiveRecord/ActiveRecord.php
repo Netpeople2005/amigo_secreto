@@ -118,7 +118,4 @@ if (!Config::initialized()) {
     //si no está inicializada la configuración que usa el Active Record,
     //lo inicializamos.
     Reader::readDatabases();
-    \ActiveRecord\DbPool\DbPool::setAttributes(array(
-        \PDO::ATTR_STATEMENT_CLASS => array('KumbiaPHP\\ActiveRecord\\PDOStatement')
-    ));
 }
