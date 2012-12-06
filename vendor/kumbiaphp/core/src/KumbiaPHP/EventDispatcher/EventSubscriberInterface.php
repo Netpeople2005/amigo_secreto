@@ -7,7 +7,7 @@ namespace KumbiaPHP\EventDispatcher;
  *
  * @author manuel
  */
-class EventSubscriberInterface
+interface EventSubscriberInterface
 {
 
     /** 

@@ -20,8 +20,9 @@
 
 namespace KumbiaPHP\Upload\Adapter;
 
-use KumbiaPHP\Upload\Exception\UploadException;
+use KumbiaPHP\Upload\Upload;
 use KumbiaPHP\Kernel\Request;
+use KumbiaPHP\Upload\Exception\UploadException;
 
 /**
  * Clase para guardar imagen subida

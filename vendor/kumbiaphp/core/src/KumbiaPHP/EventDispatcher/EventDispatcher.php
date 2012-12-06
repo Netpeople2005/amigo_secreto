@@ -38,16 +38,44 @@ class EventDispatcher implements EventDispatcherInterface
      * Constructor de la clase.
      * @param ContainerInterface $container 
      */
-    public function __construct(ContainerInterface $container)
+    public function __construct(ContainerInterface $container = null)
     {
-        $this->container = $container;
+        if ($container) {
+            $this->setContainer($container);
+        }
     }
 
-    public function dispatch($eventName, Event $event)
+    /**
+     * Establece el contenedor en el dispatcher, y de una vez recorre las definiciones
+     * del mismo para obtener los escuchas y subscriptores de eventos.
+     * @param ContainerInterface $container 
+     */
+    public function setContainer(ContainerInterface $container)
+    {
+        $this->container = $container;
+        $definitions = $container->getDefinitions();
+        foreach ($definitions['services'] as $id => $config) {
+            if (isset($config['listen'])) {//si está escuchando eventos
+                foreach ($config['listen'] as $method => $params) {
+                    isset($params[1]) || $params[1] = 0; //si no existe la prioridad la seteamos a 0
+                    $this->addListener($params[0], array($id, $method), $params[1]);
+                }
+            } elseif (isset($config['subscriber'])) {
+                $this->addSubscriber($container->get($id));
+            }
+        }
+    }
+
+    public function dispatch($eventName, Event $event = null)
     {
         if (!$this->hasListeners($eventName)) {
             return;
         }
+
+        if (!$event) {
+            $event = new Event();
+        }
+
         foreach ($this->getListeners($eventName) as $listener) {
             call_user_func($listener, $event);
             if ($event->isPropagationStopped()) {
@@ -120,7 +148,7 @@ class EventDispatcher implements EventDispatcherInterface
             isset($params[1]) || $params[1] = 0; //si no se pasa la prioridad, la creamos.
             //params[0] es el método del objeto a llamar.
             //params[1] es la prioridad.
-            $this->addListener($eventName, array($subscriber, $params[0]), $params[1]);
+            $this->addListener($params[0], array($subscriber, $method), $params[1]);
         }
     }
 
