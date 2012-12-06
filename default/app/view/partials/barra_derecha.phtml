@@ -1,6 +1,6 @@
 <?php
     use Index\Model\Noticias;
-    Noticias::createQuery()->order('id DESC');
+    Noticias::createQuery()->order('id DESC')->where('hora > :ahora')->bindValue('ahora',date("Y-m-d"));
     $noti = Noticias::findAll();
 ?>
 <style type="text/css">
@@ -12,7 +12,7 @@
     #novedades {
         border: 1px solid #ccc;
         width: 251px;
-        height: 80px;
+        height: 160px;
         overflow: hidden;
         left: -20px;
         top: -10px;
@@ -54,7 +54,7 @@
                     </strong>
                     <br>
                     <?php echo $n->noticia; ?>
-                    <a href="#" class="marker">&nbsp;</a>
+<!--                    <a href="#" class="marker">&nbsp;</a>-->
                 </li>
             <?php } ?>
         </ul>
@@ -70,7 +70,8 @@
         $.getJSON(BASE_URL + 'noticias/recargar', function(data){
             var html = "<div id='novedades' class='box1'><ul class='noti'>";
             $.each(data, function(){
-                html += "<li><strong class='color1'>"+this.hora+"</strong><br>"+this.noticia+"<a href='#' class='marker'>&nbsp;</a></li>";
+//                html += "<li><strong class='color1'>"+this.hora+"</strong><br>"+this.noticia+"<a href='#' class='marker'>&nbsp;</a></li>";
+                html += "<li><strong class='color1'>"+this.hora+"</strong><br>"+this.noticia+"</li>";
             });
             html += "</ul></div>";
             $("#all").html(html);
